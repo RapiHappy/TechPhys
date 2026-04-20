@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="ru" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TechPhys Ultimate - Academic Sandbox</title>
+    <meta name="description" content="Премиальная образовательная платформа по физике. Виртуальные лаборатории, графики, академические отчеты.">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- PREMIUM PRELOADER -->
+    <div id="preloader">
+        <canvas id="loaderCanvas"></canvas>
+        <div class="loader-overlay">
+            <h1 class="loader-logo">TECHPHYS <span class="accent">ULTIMATE</span></h1>
+            <div class="loader-status">
+                Инициализация физического движка<span class="dots">...</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="app-shell">
+        <!-- HEADER -->
+        <header class="main-header glass">
+            <div class="logo-section">
+                <div class="logo-text">TechPhys <span class="accent">Ultimate</span></div>
+            </div>
+            
+            <nav class="lab-tabs" id="lab-tabs">
+                <button class="tab-item active" data-tab="mechanics" title="Физика движения, сил и энергии">
+                    <span class="icon">🏗️</span> <span class="label" data-i18n="mechanics">Механика</span>
+                </button>
+                <button class="tab-item" data-tab="thermo" title="Молекулярная физика и тепловые процессы">
+                    <span class="icon">🔥</span> <span class="label" data-i18n="thermo">Термодинамика</span>
+                </button>
+                <button class="tab-item" data-tab="optics" title="Законы света, линзы и зеркала">
+                    <span class="icon">🔦</span> <span class="label" data-i18n="optics">Оптика</span>
+                </button>
+                <button class="tab-item" data-tab="electro" title="Электрические поля и заряды">
+                    <span class="icon">⚡</span> <span class="label" data-i18n="electro">Электростатика</span>
+                </button>
+            </nav>
+
+            <div class="header-actions">
+                <button id="hub-btn" class="special-glow" title="Перейти в другие лаборатории (3D, AI, Sandbox)">
+                    <span class="icon">🌌</span> <span data-i18n="labs_hub">Центр Лабораторий</span>
+                </button>
+                <div class="divider"></div>
+                <button id="theory-btn" title="Посмотреть теоретические справки по текущей теме">
+                    <span class="icon">📖</span> <span data-i18n="theory">Теория</span>
+                </button>
+                <div class="divider"></div>
+                <button id="chat-reopen-btn" title="Открыть чат с ИИ-помощником">💬 Помощь</button>
+                <button id="lang-toggle" title="Сменить язык интерфейса (RU/EN)">RU</button>
+                <button id="theme-toggle" title="Переключить темную/светлую тему">🌙</button>
+            </div>
+        </header>
+
+        <!-- MAIN WORKSPACE -->
+        <main class="workspace">
+            <!-- Left Sidebar -->
+            <aside class="sidebar left-sidebar glass">
+                <div class="sidebar-scroll">
+                    <div class="sidebar-group-label" data-i18n="presets">🚀 ГОТОВЫЕ СЦЕНАРИИ</div>
+                    <select id="scenario-select" class="tool-btn" title="Выберите готовый эксперимент для быстрой настройки">
+                        <option value="" data-i18n="select_scenario">Выбрать сценарий...</option>
+                        <option value="pendulum" data-i18n="preset_pendulum">Маятник (Механика)</option>
+                        <option value="reflection" data-i18n="preset_reflection">Отражение (Оптика)</option>
+                        <option value="dipole" data-i18n="preset_dipole">Диполь (Электростатика)</option>
+                    </select>
+
+                    <div id="dynamic-controls">
+                        <!-- Controls injected by script.js -->
+                    </div>
+
+                    <div class="sidebar-group-label" data-i18n="tools">🛠️ ИНСТРУМЕНТЫ</div>
+                    <button class="tool-btn" id="grid-toggle" title="Включить или выключить координатную сетку">
+                        <span class="icon">#</span> <span data-i18n="toggle_grid">Сетка: Вкл/Выкл</span>
+                    </button>
+                    <button class="tool-btn" id="ruler-tool" title="Инструмент для измерения расстояний на холсте">
+                        <span class="icon">📏</span> <span data-i18n="ruler">Линейка</span>
+                    </button>
+
+                    <div class="sidebar-group-label" data-i18n="sim_control">⏱️ УПРАВЛЕНИЕ</div>
+                    <div class="sim-ctrl-row">
+                        <button class="control-btn time-btn" id="play-pause-btn" title="Запустить или остановить симуляцию">⏸️</button>
+                        <button class="control-btn delete-btn" id="delete-btn" title="Удалить выбранный объект">❌</button>
+                        <button class="control-btn clear-btn" id="clear-all-btn" title="Удалить все объекты с экрана">💣</button>
+                    </div>
+                    <div class="control-group">
+                        <label>
+                            <span data-i18n="sim_speed">Скорость</span>
+                            <span id="speed-val">1.0x</span>
+                        </label>
+                        <input type="range" id="sim-speed" min="0.1" max="3" step="0.1" value="1" title="Изменить скорость течения времени в симуляции">
+                    </div>
+                </div>
+                <div class="sidebar-footer">
+                    <button class="tool-btn tutorial-btn-style" id="tutorial-btn" title="Посмотреть краткую инструкцию по управлению">
+                        <span class="icon">❓</span> <span data-i18n="how_it_works">Как это работает?</span>
+                    </button>
+                </div>
+            </aside>
+
+            <!-- Center Viewport -->
+            <section class="viewport-container" id="viewport">
+                <canvas id="physics-canvas"></canvas>
+                <div class="canvas-labels top-right" id="ruler-display"></div>
+            </section>
+
+            <!-- Right Sidebar -->
+            <aside class="sidebar right-sidebar glass">
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <span class="icon">🔍</span> <span data-i18n="inspector">Инспектор</span>
+                    </div>
+                    <div class="inspector-content" id="inspector-data">
+                        <div class="empty-state" data-i18n="no_data">Нет данных</div>
+                    </div>
+                </div>
+
+                <!-- Academic Section: Charts -->
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <span class="icon">📈</span> <span data-i18n="chart_title">График в реальном времени</span>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="chartCanvas"></canvas>
+                    </div>
+                </div>
+
+                <!-- Export Section -->
+                <div class="sidebar-section">
+                    <div class="section-header">
+                        <span class="icon">💾</span> <span data-i18n="export">Экспорт & Отчет</span>
+                    </div>
+                    <div class="export-actions">
+                        <button id="export-csv-btn" class="export-btn" title="Скачать данные движения в формате CSV">📥 CSV</button>
+                        <button id="screenshot-btn" class="export-btn" title="Сохранить текущий вид холста как PNG">📷 PNG</button>
+                    </div>
+                </div>
+
+            </aside>
+        </main>
+
+        <!-- CHAT WIDGET -->
+        <div class="chat-wrapper" id="chat-container">
+            <div class="chat-window glass closed" id="chat-window">
+                <div class="chat-header">
+                    <div class="bot-info" id="chat-header-toggle" style="cursor:pointer" title="Свернуть/развернуть чат">
+                        <div class="bot-status online"></div>
+                        <span class="bot-name">TechPhys Support</span>
+                    </div>
+                    <button id="chat-close" class="close-btn" title="Закрыть чат помощника">&times;</button>
+                </div>
+                <div class="chat-content" id="chat-messages">
+                    <div class="message bot">Привет! Я твой ИИ-помощник. Задавай любые вопросы по физике или по работе симулятора!</div>
+                </div>
+                <div class="chat-footer">
+                    <div class="chip-container" id="chat-chips">
+                        <button class="chat-chip">Законы Ньютона</button>
+                        <button class="chat-chip">Что такое МКТ?</button>
+                        <button class="chat-chip">Зеркала и линзы</button>
+                        <button class="chat-chip">Заряды и поля</button>
+                    </div>
+                    <div class="input-row">
+                        <input type="text" id="chat-input" placeholder="Ваш вопрос..." autocomplete="off">
+                        <button id="chat-send" class="send-btn" title="Отправить сообщение">🚀</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- MODALS -->
+        <div id="theory-modal" class="modal-overlay hidden">
+            <div class="modal glass">
+                <div class="modal-header">
+                    <h2 data-i18n="theory_title">База Знаний</h2>
+                    <button class="modal-close">&times;</button>
+                </div>
+                <div class="modal-content" id="theory-content"></div>
+            </div>
+        </div>
+        
+        <!-- TUTORIAL MODAL -->
+        <div id="tutorial-modal" class="modal-overlay hidden">
+            <div class="modal glass tutorial-card">
+                <div class="modal-header">
+                    <h2>🚀 TechPhys: Быстрый старт</h2>
+                    <button class="modal-close" id="close-tutorial">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="tutorial-steps">
+                        <div class="step">
+                            <span class="step-num">1</span>
+                            <p><b>Выберите лабораторию</b> во вкладках сверху (Механика, Оптика и др.). Каждая имеет свой набор инструментов.</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">2</span>
+                            <p><b>Добавляйте объекты</b> через левое меню. Вы можете перетаскивать их мышкой прямо на холсте!</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">3</span>
+                            <p><b>Следите за графиками</b> в правой панели и экспортируйте данные в CSV для ваших отчетов.</p>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="next-btn" id="tutorial-ok">Понятно, в бой!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LABS HUB MODAL -->
+        <div id="hub-modal" class="modal-overlay hidden">
+            <div class="modal glass hub-card">
+                <div class="modal-header">
+                    <h2>🌌 TECHPHYS MULTIVERSE</h2>
+                    <button class="modal-close" id="close-hub">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="hub-grid">
+                        <a href="index.html" class="hub-item active">
+                            <div class="hub-icon">🏗️</div>
+                            <div class="hub-info">
+                                <h3>2D Academic Labs</h3>
+                                <p>Основной симулятор: Механика, Термодинамика, Оптика.</p>
+                            </div>
+                        </a>
+                        <a href="/" class="hub-item">
+                            <div class="hub-icon">🏠</div>
+                            <div class="hub-info">
+                                <h3>Main Hub</h3>
+                                <p>Вернуться на главную страницу портала.</p>
+                            </div>
+                        </a>
+                        <a href="/src/labs/3d-ar/index.html" class="hub-item">
+                            <div class="hub-icon">🔮</div>
+                            <div class="hub-info">
+                                <h3>3D Neural AR</h3>
+                                <p>Дополненная реальность и голосовое управление.</p>
+                            </div>
+                        </a>
+                        <a href="/src/labs/neural-guide/index.html" class="hub-item">
+                            <div class="hub-icon">🧠</div>
+                            <div class="hub-info">
+                                <h3>AI Physics Guide</h3>
+                                <p>Интеллектуальный помощник с терминалом логов.</p>
+                            </div>
+                        </a>
+                        <a href="/src/labs/legacy-sandbox/index.html" class="hub-item">
+                            <div class="hub-icon">🏖️</div>
+                            <div class="hub-info">
+                                <h3>Legacy Sandbox</h3>
+                                <p>Классическая песочница для экспериментов.</p>
+                            </div>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="main.js"></script>
+</body>
+</html>

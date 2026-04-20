@@ -4,11 +4,12 @@ export class VoiceController {
         this.onCommand = onCommand;
         this.onStatus = onStatus;
         
-        // === ВСТАВЛЯЙ СВОИ КЛЮЧИ СЮДА ===
-        this.GEMINI_API_KEY = "AIzaSyDy4fVKvPs809AmgfWJnWPGIFbCbzpRKkI";
-        this.ELEVENLABS_API_KEY = "sk_c1930799ee82a65a8ef0aa07668e8349a7ef78ea0ce16b07";
-        this.VOICE_ID = "SdaWBr1v0KnnjnRCWTf9"; // Голос Adam (можно менять)
+        // === API KEYS SECURED VIA .ENV ===
+        this.GEMINI_API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
+        this.ELEVENLABS_API_KEY = import.meta.env.VITE_ELEVENLABS_API_KEY;
+        this.VOICE_ID = import.meta.env.VITE_VOICE_ID || "SdaWBr1v0KnnjnRCWTf9";
         // ================================
+
 
         this.recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
         this.recognition.lang = 'ru-RU';
