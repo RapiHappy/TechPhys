@@ -1,82 +1,144 @@
 export class ChatController {
     constructor(engine) {
         this.engine = engine;
-        this.setup();
+        this.isOpen = false;
+        this.messages = [];
+        this.openaiKey = import.meta.env.VITE_OPENAI_API_KEY;
+        this.setupUI();
     }
 
-    setup() {
-        const wrapper = document.getElementById('chat-container');
-        const reopenBtn = document.getElementById('chat-reopen-btn');
+    setupUI() {
+        this.window = document.getElementById('chat-window');
+        this.container = document.getElementById('chat-messages');
+        this.input = document.getElementById('chat-input');
+        this.sendBtn = document.getElementById('chat-send');
+        this.toggleBtn = document.getElementById('chat-header-toggle');
+        this.reopenBtn = document.getElementById('chat-reopen-btn');
+        this.closeBtn = document.getElementById('chat-close');
 
-        const headerToggle = document.getElementById('chat-header-toggle');
-        if (headerToggle) {
-            headerToggle.onclick = () => document.getElementById('chat-window').classList.toggle('closed');
-        }
+        if (this.sendBtn) this.sendBtn.onclick = () => this.sendMessage();
+        if (this.input) this.input.onkeypress = (e) => { if (e.key === 'Enter') this.sendMessage(); };
+        if (this.toggleBtn) this.toggleBtn.onclick = () => this.toggle();
+        if (this.reopenBtn) this.reopenBtn.onclick = () => this.open();
+        if (this.closeBtn) this.closeBtn.onclick = () => this.close();
 
-        const closeBtn = document.getElementById('chat-close');
-        if (closeBtn) {
-            closeBtn.onclick = () => {
-                wrapper.style.display = 'none';
-            };
-        }
-
-        if (reopenBtn) {
-            reopenBtn.onclick = () => {
-                wrapper.style.display = 'block';
-                document.getElementById('chat-window').classList.remove('closed');
-            };
-        }
-
-        const sendBtn = document.getElementById('chat-send');
-        if (sendBtn) {
-            sendBtn.onclick = () => this.send();
-        }
-
-        const inputField = document.getElementById('chat-input');
-        if (inputField) {
-            inputField.onkeydown = (e) => {
-                if (e.key === 'Enter') this.send();
-            };
-        }
-
-        document.querySelectorAll('.chat-chip').forEach(c => {
-            c.onclick = () => {
-                const input = document.getElementById('chat-input');
-                if (input) {
-                    input.value = c.innerText;
-                    this.send();
-                }
+        document.querySelectorAll('.chat-chip').forEach(chip => {
+            chip.onclick = () => {
+                this.input.value = chip.innerText;
+                this.sendMessage();
             };
         });
     }
 
-    send() {
-        const input = document.getElementById('chat-input');
-        if (!input) return;
-        const text = input.value.trim();
+    toggle() {
+        this.isOpen ? this.close() : this.open();
+    }
+
+    open() {
+        this.window.classList.remove('closed');
+        this.isOpen = true;
+    }
+
+    close() {
+        this.window.classList.add('closed');
+        this.isOpen = false;
+    }
+
+    async sendMessage() {
+        const text = this.input.value.trim();
         if (!text) return;
-        this.addMsg(text, 'user');
-        input.value = '';
-        setTimeout(() => this.addMsg(this.getSmartResponse(text), 'bot'), 600);
+
+        this.addMessage(text, 'user');
+        this.input.value = '';
+
+        const typingId = this.addTypingIndicator();
+
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.openaiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o",
+                    messages: [
+                        { role: "system", content: "You are TechPhys AI, a brilliant and helpful physics assistant. Answer questions concisely and scientifically. Use markdown for formulas. If the user asks to perform an action in the lab, always include a JSON command at the end of your message in the format: [COMMAND: ACTION_NAME, params]. Actions include: SPAWN_BALL, SPAWN_BOX, CLEAR, SET_GRAVITY." },
+                        { role: "user", content: text }
+                    ],
+                    temperature: 0.7
+                })
+            });
+
+            const data = await response.json();
+            this.removeTypingIndicator(typingId);
+
+            if (data.error) {
+                this.addMessage(`AI Error: ${data.error.message}`, 'bot');
+                return;
+            }
+
+            const aiText = data.choices[0].message.content;
+            this.processAiResponse(aiText);
+
+        } catch (err) {
+            this.removeTypingIndicator(typingId);
+            this.addMessage("Connection error. Please try again.", 'bot');
+            console.error(err);
+        }
     }
 
-    getSmartResponse(q) {
-        const low = q.toLowerCase();
-        if (low.includes("ньютон")) return "Законы Ньютона — фундамент механики. 1-й: инерция; 2-й: F=ma; 3-й: действие равно противодействию. В нашей симуляции 2-й закон работает при каждом взаимодействии объектов!";
-        if (low.includes("мкт") || low.includes("газ")) return "Молекулярно-кинетическая теория объясняет макросвойства газа движением молекул. Температура в симуляции задает скорость частиц, а давление — частоту их ударов о стенки.";
-        if (low.includes("снеллиус") || low.includes("отражен") || low.includes("зеркал") || low.includes("линз")) return "Оптика в TechPhys поддерживает зеркальное отражение и преломление в призмах. Используйте лазер и зеркала, чтобы увидеть ход лучей!";
-        if (low.includes("заряд") || low.includes("поле") || low.includes("кулон")) return "Закон Кулона определяет силу взаимодействия зарядов. В нашей лаборатории электростатики вы видите векторное поле, которое показывает направление этой силы в каждой точке.";
-        if (low.includes("как") || low.includes("помощ") || low.includes("инструкц")) return "Все просто! Выберите лабораторию сверху, добавьте объекты кнопками слева и перетаскивайте их мышкой. Следите за параметрами в инспекторе!";
-        return "Интересный вопрос! На нашей платформе вы можете проверить это экспериментально прямо сейчас.";
+    processAiResponse(content) {
+        // Parse custom command format [COMMAND: ACTION, PARAMS]
+        const commandMatch = content.match(/\[COMMAND:\s*(\w+),\s*(.*?)\]/);
+        let cleanText = content.replace(/\[COMMAND:.*?\]/g, '').trim();
+
+        this.addMessage(cleanText, 'bot');
+
+        if (commandMatch) {
+            const action = commandMatch[1];
+            const params = commandMatch[2];
+            this.executeCommand(action, params);
+        }
     }
 
-    addMsg(t, s) {
-        const box = document.getElementById('chat-messages');
-        if (!box) return;
-        const div = document.createElement('div');
-        div.className = `message ${s}`;
-        div.innerText = t;
-        box.appendChild(div);
-        box.scrollTop = box.scrollHeight;
+    executeCommand(action, params) {
+        console.log("AI Command:", action, params);
+        // Map AI commands to Engine actions
+        if (action === 'SPAWN_BALL') {
+            const lab = this.engine.labs.mechanics;
+            lab.handleToolClick('create-ball');
+        }
+        if (action === 'CLEAR') {
+            this.engine.clearLabState();
+        }
+        if (action === 'SET_GRAVITY') {
+            const val = parseFloat(params);
+            if (!isNaN(val)) this.engine.labs.mechanics.gravity = val;
+        }
+    }
+
+    addMessage(text, type) {
+        const msg = document.createElement('div');
+        msg.className = `message ${type}`;
+        msg.innerText = text;
+        this.container.appendChild(msg);
+        this.container.scrollTop = this.container.scrollHeight;
+    }
+
+    addTypingIndicator() {
+        const id = 'typing-' + Date.now();
+        const msg = document.createElement('div');
+        msg.className = 'message bot typing';
+        msg.id = id;
+        msg.innerHTML = '<span class="dot"></span><span class="dot"></span><span class="dot"></span>';
+        this.container.appendChild(msg);
+        this.container.scrollTop = this.container.scrollHeight;
+        return id;
+    }
+
+    removeTypingIndicator(id) {
+        const el = document.getElementById(id);
+        if (el) el.remove();
     }
 }

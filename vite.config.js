@@ -1,0 +1,21 @@
+import { defineConfig } from 'vite';
+import { resolve } from 'path';
+
+export default defineConfig({
+  root: './',
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        academic: resolve(__dirname, 'src/labs/2d-academic/index.html'),
+        ar: resolve(__dirname, 'src/labs/3d-ar/index.html'),
+        guide: resolve(__dirname, 'src/labs/neural-guide/index.html'),
+        sandbox: resolve(__dirname, 'src/labs/legacy-sandbox/index.html')
+      }
+    }
+  },
+  server: {
+    port: 3000,
+    open: true
+  }
+});
