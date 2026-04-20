@@ -56,8 +56,7 @@ export class MechanicsLab {
 
     draw() {
         this.ctx.shadowBlur = 0;
-        const style = getComputedStyle(document.documentElement);
-        const objColor = style.getPropertyValue('--obj-color').trim();
+        const objColor = this.engine.themeCache.objColor;
 
         this.objects.forEach(o => {
             const isSelected = o === this.engine.selection;

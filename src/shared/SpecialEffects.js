@@ -214,3 +214,95 @@ export class WireframeLoader {
         if (this.canvas) this.canvas.style.display = 'none';
     }
 }
+
+/**
+ * QuantumPulseLoader: High-performance premium loader for TechPhys Hub
+ * Optimized for 60FPS with orbital motion and glow effects
+ */
+export class QuantumPulseLoader {
+    constructor(canvasId, text = "TECHPHYS") {
+        this.canvas = document.getElementById(canvasId);
+        if (!this.canvas) return;
+        this.ctx = this.canvas.getContext('2d');
+        this.text = text;
+        this.active = true;
+        this.angle = 0;
+        this.circles = [
+            { r: 80, speed: 0.02, color: '#00f0ff', pCount: 8 },
+            { r: 120, speed: -0.015, color: '#ff00ff', pCount: 12 },
+            { r: 160, speed: 0.01, color: '#a855f7', pCount: 6 }
+        ];
+        
+        this.resize();
+        this.animate();
+        window.addEventListener('resize', () => this.resize());
+    }
+
+    resize() {
+        this.canvas.width = window.innerWidth;
+        this.canvas.height = window.innerHeight;
+    }
+
+    animate() {
+        if (!this.active) return;
+        
+        this.ctx.fillStyle = 'rgba(5, 6, 8, 0.15)';
+        this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+        
+        this.angle += 0.02;
+        const cx = this.canvas.width / 2;
+        const cy = this.canvas.height / 2;
+        
+        this.ctx.globalCompositeOperation = 'lighter';
+        
+        this.circles.forEach((c, idx) => {
+            const rot = this.angle * c.speed * 50;
+            
+            // Draw Orbit Ring
+            this.ctx.strokeStyle = c.color;
+            this.ctx.lineWidth = 1;
+            this.ctx.globalAlpha = 0.1;
+            this.ctx.beginPath();
+            this.ctx.arc(cx, cy, c.r, 0, Math.PI * 2);
+            this.ctx.stroke();
+            this.ctx.globalAlpha = 1.0;
+            
+            // Draw Orbiting Particles
+            for(let i=0; i<c.pCount; i++) {
+                const step = (Math.PI * 2) / c.pCount;
+                const a = rot + i * step;
+                const px = cx + Math.cos(a) * c.r;
+                const py = cy + Math.sin(a) * c.r;
+                
+                const grad = this.ctx.createRadialGradient(px, py, 0, px, py, 15);
+                grad.addColorStop(0, c.color);
+                grad.addColorStop(1, 'transparent');
+                
+                this.ctx.fillStyle = grad;
+                this.ctx.beginPath();
+                this.ctx.arc(px, py, 15, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                // Core particle
+                this.ctx.fillStyle = '#fff';
+                this.ctx.beginPath();
+                this.ctx.arc(px, py, 2, 0, Math.PI * 2);
+                this.ctx.fill();
+            }
+        });
+        
+        this.ctx.globalCompositeOperation = 'source-over';
+        requestAnimationFrame(() => this.animate());
+    }
+
+    stop() {
+        this.active = false;
+        if (this.canvas) {
+            const parent = this.canvas.parentElement;
+            if (parent) {
+                parent.style.opacity = '0';
+                setTimeout(() => parent.style.display = 'none', 1000);
+            }
+        }
+    }
+}

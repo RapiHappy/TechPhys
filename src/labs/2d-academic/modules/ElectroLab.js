@@ -40,6 +40,7 @@ export class ElectroLab {
 
     drawVectorField() {
         const step = 40;
+        const objColor = this.engine.themeCache.objColor;
         for (let x = step / 2; x < this.engine.canvas.width; x += step) {
             for (let y = step / 2; y < this.engine.canvas.height; y += step) {
                 let E = new Vec2();
@@ -55,7 +56,6 @@ export class ElectroLab {
                 if (mag < 0.1) continue;
                 let len = Math.min(mag, 20);
                 let d = E.unit().mult(len);
-                const objColor = getComputedStyle(document.documentElement).getPropertyValue('--obj-color').trim();
                 this.ctx.strokeStyle = objColor;
                 this.ctx.globalAlpha = Math.min(mag / 10, 0.3);
                 this.ctx.beginPath();

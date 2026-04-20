@@ -140,12 +140,20 @@ export class Engine {
         this.timeScale = 1.0;
         this.lastTime = performance.now();
         
+        this.themeCache = {
+            canvasBg: '#05060a',
+            objColor: '#ffffff',
+            accent: '#00f0ff'
+        };
+
         this.init();
     }
 
     init() {
         this.resize();
         window.addEventListener('resize', () => this.resize());
+        
+        this.updateThemeCache();
         
         this.labs.mechanics = new MechanicsLab(this);
         this.labs.thermo = new ThermoLab(this);
@@ -162,12 +170,22 @@ export class Engine {
         window.addEventListener('techphys_theme_change', (e) => {
             const btn = document.getElementById('theme-toggle');
             if (btn) btn.innerText = e.detail.theme === 'dark' ? '🌙' : '☀️';
+            this.updateThemeCache();
         });
 
         this.updateUI();
         this.loop();
         
         setInterval(() => this.logData(), 100);
+    }
+
+    updateThemeCache() {
+        const style = getComputedStyle(document.documentElement);
+        this.themeCache.canvasBg = style.getPropertyValue('--canvas-bg').trim() || '#0a0b10';
+        this.themeCache.objColor = style.getPropertyValue('--obj-color').trim() || '#ffffff';
+        this.themeCache.accent = style.getPropertyValue('--accent').trim() || '#00f0ff';
+        
+        // Update Chart font color if needed
     }
 
     resize() {
@@ -474,10 +492,7 @@ export class Engine {
 
         try {
             this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-            
-            const style = getComputedStyle(document.documentElement);
-            const canvasBg = style.getPropertyValue('--canvas-bg').trim() || '#0a0b10';
-            this.ctx.fillStyle = canvasBg;
+            this.ctx.fillStyle = this.themeCache.canvasBg;
             this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
             if (this.showGrid) this.drawGrid();

@@ -11,8 +11,7 @@ export class OpticsLab {
     update(dt) { }
 
     draw() {
-        const style = getComputedStyle(document.documentElement);
-        const objColor = style.getPropertyValue('--obj-color').trim();
+        const objColor = this.engine.themeCache.objColor;
 
         const isLaserSelected = this.laser === this.engine.selection;
         const laserPos = this.laser.pos || this.laser;
