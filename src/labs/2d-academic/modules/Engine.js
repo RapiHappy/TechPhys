@@ -159,11 +159,10 @@ export class Engine {
                     this.deleteSelected();
                     return;
                 }
-                if (el.closest('#clear-all-btn')) {
-                    this.clearLabState();
+                if (el.closest('#hub-btn')) {
+                    window.location.href = '../../index.html';
                     return;
                 }
-
                 if (el.id === 'lang-toggle') {
                     currentLang = currentLang === 'ru' ? 'en' : 'ru';
                     el.innerText = currentLang.toUpperCase();
