@@ -36,6 +36,7 @@ const translations = {
         angle: "Угол (α)",
         sim_control: "⏱️ УПРАВЛЕНИЕ",
         sim_speed: "Скорость",
+        labs_hub: "Центр Лабораторий"
     },
     en: {
         mechanics: "Mechanics",
@@ -68,6 +69,7 @@ const translations = {
         angle: "Angle (α)",
         sim_control: "⏱️ SIM CONTROL",
         sim_speed: "Speed",
+        labs_hub: "Labs Hub"
     }
 };
 
@@ -227,6 +229,16 @@ class Engine {
                         // BUGFIX: Clear coordinates on tool disable
                         this.rulerStart = this.rulerEnd = null;
                         document.getElementById('ruler-display').style.left = "-1000px";
+                    }
+                    return;
+                }
+
+                // Hub Trigger
+                if (el.closest('#hub-btn')) {
+                    const modal = document.getElementById('hub-modal');
+                    if (modal) {
+                        modal.style.display = 'flex';
+                        modal.classList.remove('hidden');
                     }
                     return;
                 }

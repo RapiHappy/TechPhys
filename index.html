@@ -43,6 +43,10 @@
             </nav>
 
             <div class="header-actions">
+                <button id="hub-btn" class="special-glow" title="Labs Hub">
+                    <span class="icon">🌌</span> <span data-i18n="labs_hub">Центр Лабораторий</span>
+                </button>
+                <div class="divider"></div>
                 <button id="theory-btn" title="Theory">
                     <span class="icon">📖</span> <span data-i18n="theory">Теория</span>
                 </button>
@@ -207,6 +211,48 @@
                 </div>
                 <div class="modal-footer">
                     <button class="next-btn" id="tutorial-ok">Понятно, в бой!</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- LABS HUB MODAL -->
+        <div id="hub-modal" class="modal-overlay hidden">
+            <div class="modal glass hub-card">
+                <div class="modal-header">
+                    <h2>🌌 TECHPHYS MULTIVERSE</h2>
+                    <button class="modal-close" id="close-hub">&times;</button>
+                </div>
+                <div class="modal-content">
+                    <div class="hub-grid">
+                        <a href="index.html" class="hub-item active">
+                            <div class="hub-icon">🏗️</div>
+                            <div class="hub-info">
+                                <h3>2D Academic Labs</h3>
+                                <p>Основной симулятор: Механика, Термодинамика, Оптика.</p>
+                            </div>
+                        </a>
+                        <a href="TechPhys_AR_GodTier/index.html" class="hub-item">
+                            <div class="hub-icon">🔮</div>
+                            <div class="hub-info">
+                                <h3>3D Neural AR</h3>
+                                <p>Дополненная реальность и голосовое управление.</p>
+                            </div>
+                        </a>
+                        <a href="TechPhys_NeuralGuide/index.html" class="hub-item">
+                            <div class="hub-icon">🧠</div>
+                            <div class="hub-info">
+                                <h3>AI Physics Guide</h3>
+                                <p>Интеллектуальный помощник с терминалом логов.</p>
+                            </div>
+                        </a>
+                        <a href="TechPhys_Sandbox/index.html" class="hub-item">
+                            <div class="hub-icon">🏖️</div>
+                            <div class="hub-info">
+                                <h3>Legacy Sandbox</h3>
+                                <p>Классическая песочница для экспериментов.</p>
+                            </div>
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
