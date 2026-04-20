@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="TechPhys Sandbox — образовательная 2D-платформа: Механика и Термодинамика с визуализацией векторов, МКТ и справочником теории.">
+    <title>TechPhys Sandbox — Механика & Термодинамика</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ШАПКА: вкладки + статус + кнопка теории
+         ═══════════════════════════════════════════════════════ -->
+    <header id="app-header">
+        <!-- Бренд -->
+        <div class="header-brand">
+            <span class="brand-icon">⚛</span>
+            <h1>TechPhys <span class="accent-cyan">Sandbox</span></h1>
+        </div>
+
+        <!-- Вкладки -->
+        <nav id="tab-nav" class="tab-nav">
+            <button id="tab-mechanics" class="tab-btn active" data-tab="mechanics">
+                <span class="tab-icon">⚙</span> Механика
+            </button>
+            <button id="tab-thermo" class="tab-btn" data-tab="thermo">
+                <span class="tab-icon">🔥</span> Термодинамика
+            </button>
+        </nav>
+
+        <!-- Правая часть шапки -->
+        <div class="header-right">
+            <span id="fps-counter" class="status-badge">FPS: --</span>
+            <span id="body-count" class="status-badge">Тел: 0</span>
+            <button id="btn-theory" class="btn btn-theory" title="Открыть справочник теории">
+                📖 Теория
+            </button>
+        </div>
+    </header>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ОСНОВНОЙ ЛЕЙАУТ: три колонки
+         ═══════════════════════════════════════════════════════ -->
+    <main id="app-layout">
+
+        <!-- ─── ЛЕВАЯ ПАНЕЛЬ: Управление ─── -->
+        <aside id="panel-controls" class="glass-panel">
+
+            <!-- ====== МЕХАНИКА: контролы ====== -->
+            <div id="controls-mechanics" class="tab-content active">
+                <h2 class="panel-title">Управление · Механика</h2>
+
+                <!-- Создание объектов -->
+                <section class="control-section">
+                    <h3 class="section-label">Создать объект</h3>
+                    <div class="button-group">
+                        <button id="btn-create-ball" class="btn btn-cyan" title="Создать шар">
+                            <span class="btn-icon">●</span> Шар
+                        </button>
+                        <button id="btn-create-box" class="btn btn-magenta" title="Создать гирю (куб)">
+                            <span class="btn-icon">■</span> Гиря
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Глобальные параметры -->
+                <section class="control-section">
+                    <h3 class="section-label">Глобальные параметры</h3>
+
+                    <div class="slider-group">
+                        <label for="slider-gravity">
+                            Гравитация <code>g</code>
+                            <output id="val-gravity">9.81</output> м/с²
+                        </label>
+                        <input type="range" id="slider-gravity" min="0" max="30" step="0.1" value="9.81">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="slider-restitution">
+                            Упругость <code>e</code>
+                            <output id="val-restitution">0.75</output>
+                        </label>
+                        <input type="range" id="slider-restitution" min="0" max="1" step="0.01" value="0.75">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="slider-friction">
+                            Сопротивление <code>μ</code>
+                            <output id="val-friction">0.02</output>
+                        </label>
+                        <input type="range" id="slider-friction" min="0" max="0.2" step="0.001" value="0.02">
+                    </div>
+                </section>
+
+                <!-- Масса нового тела -->
+                <section class="control-section">
+                    <h3 class="section-label">Масса нового тела</h3>
+                    <div class="slider-group">
+                        <label for="slider-mass">
+                            Масса <code>m</code>
+                            <output id="val-mass">2.0</output> кг
+                        </label>
+                        <input type="range" id="slider-mass" min="0.5" max="20" step="0.5" value="2.0">
+                    </div>
+                </section>
+
+                <!-- Визуализация -->
+                <section class="control-section">
+                    <h3 class="section-label">Визуализация</h3>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="toggle-vectors" checked>
+                        <span>Показать векторы</span>
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="toggle-grid" checked>
+                        <span>Координатная сетка</span>
+                    </label>
+                    <label class="toggle-label">
+                        <input type="checkbox" id="toggle-trails" checked>
+                        <span>Следы траекторий</span>
+                    </label>
+                </section>
+
+                <!-- Действия -->
+                <section class="control-section">
+                    <h3 class="section-label">Действия</h3>
+                    <div class="button-group">
+                        <button id="btn-pause" class="btn btn-outline" title="Пауза / запуск">
+                            ⏸ Пауза
+                        </button>
+                        <button id="btn-clear" class="btn btn-outline btn-danger" title="Очистить сцену">
+                            ✕ Очистить
+                        </button>
+                    </div>
+                </section>
+            </div>
+
+            <!-- ====== ТЕРМОДИНАМИКА: контролы ====== -->
+            <div id="controls-thermo" class="tab-content">
+                <h2 class="panel-title">Управление · Термодинамика</h2>
+
+                <!-- Добавление молекул -->
+                <section class="control-section">
+                    <h3 class="section-label">Частицы</h3>
+                    <div class="button-group">
+                        <button id="btn-add-molecules" class="btn btn-cyan" title="Добавить 50 молекул">
+                            + Добавить 50 молекул
+                        </button>
+                    </div>
+                </section>
+
+                <!-- Температура -->
+                <section class="control-section">
+                    <h3 class="section-label">Параметры газа</h3>
+                    <div class="slider-group">
+                        <label for="slider-temperature">
+                            Температура <code>T</code>
+                            <output id="val-temperature">30</output>
+                        </label>
+                        <input type="range" id="slider-temperature" min="1" max="100" step="1" value="30">
+                    </div>
+
+                    <div class="slider-group">
+                        <label for="slider-volume">
+                            Объём <code>V</code>
+                            <output id="val-volume">80</output>%
+                        </label>
+                        <input type="range" id="slider-volume" min="50" max="100" step="1" value="80">
+                    </div>
+                </section>
+
+                <!-- Действия -->
+                <section class="control-section">
+                    <h3 class="section-label">Действия</h3>
+                    <div class="button-group">
+                        <button id="btn-clear-gas" class="btn btn-outline btn-danger" title="Убрать все молекулы">
+                            ✕ Очистить газ
+                        </button>
+                    </div>
+                </section>
+            </div>
+        </aside>
+
+        <!-- ─── ЦЕНТРАЛЬНАЯ ОБЛАСТЬ: Canvas ─── -->
+        <div id="canvas-wrapper">
+            <canvas id="physics-canvas"></canvas>
+            <div id="canvas-overlay-hint">Создайте объект и перетаскивайте его мышью</div>
+        </div>
+
+        <!-- ─── ПРАВАЯ ПАНЕЛЬ: Инспектор ─── -->
+        <aside id="panel-inspector" class="glass-panel">
+
+            <!-- ====== ИНСПЕКТОР МЕХАНИКИ ====== -->
+            <div id="inspector-mechanics" class="tab-content active">
+                <h2 class="panel-title">Инспектор · Механика</h2>
+
+                <div id="inspector-empty" class="inspector-placeholder">
+                    <span class="placeholder-icon">🔍</span>
+                    <p>Выберите тело<br>для просмотра</p>
+                </div>
+
+                <div id="inspector-data" class="inspector-content" style="display: none;">
+                    <div class="data-row data-header">
+                        <span id="inspect-shape" class="shape-badge">●</span>
+                        <span id="inspect-type">Шар</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Масса <code>m</code></span>
+                        <span class="data-value"><span id="inspect-mass">0</span> кг</span>
+                    </div>
+                    <div class="data-row highlight-cyan">
+                        <span class="data-label">Скорость <code>|v|</code></span>
+                        <span class="data-value"><span id="inspect-velocity">0</span> м/с</span>
+                    </div>
+                    <div class="data-row sub-row">
+                        <span class="data-label"><code>vₓ</code></span>
+                        <span class="data-value"><span id="inspect-vx">0</span></span>
+                    </div>
+                    <div class="data-row sub-row">
+                        <span class="data-label"><code>vᵧ</code></span>
+                        <span class="data-value"><span id="inspect-vy">0</span></span>
+                    </div>
+                    <div class="data-row highlight-cyan">
+                        <span class="data-label">Кинетическая <code>Eₖ</code></span>
+                        <span class="data-value"><span id="inspect-ek">0</span> Дж</span>
+                    </div>
+                    <div class="data-row highlight-magenta">
+                        <span class="data-label">Потенциальная <code>Eₚ</code></span>
+                        <span class="data-value"><span id="inspect-ep">0</span> Дж</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Полная <code>E</code></span>
+                        <span class="data-value"><span id="inspect-etotal">0</span> Дж</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Высота <code>h</code></span>
+                        <span class="data-value"><span id="inspect-height">0</span> м</span>
+                    </div>
+                    <div class="data-row sub-row">
+                        <span class="data-label">Позиция</span>
+                        <span class="data-value">(<span id="inspect-x">0</span>, <span id="inspect-y">0</span>)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ====== ИНСПЕКТОР ТЕРМОДИНАМИКИ ====== -->
+            <div id="inspector-thermo" class="tab-content">
+                <h2 class="panel-title">Инспектор · Газ</h2>
+
+                <div class="inspector-content" style="display: flex;">
+                    <div class="data-row data-header">
+                        <span class="shape-badge" style="color: #ff9800;">☁</span>
+                        <span>Идеальный газ</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Частиц <code>N</code></span>
+                        <span class="data-value"><span id="thermo-count">0</span></span>
+                    </div>
+                    <div class="data-row highlight-cyan">
+                        <span class="data-label">Средняя <code>Eₖ</code></span>
+                        <span class="data-value"><span id="thermo-avg-ek">0</span> ед</span>
+                    </div>
+                    <div class="data-row highlight-magenta">
+                        <span class="data-label">Давление <code>P</code></span>
+                        <span class="data-value"><span id="thermo-pressure">0</span> уд/с</span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Температура <code>T</code></span>
+                        <span class="data-value"><span id="thermo-temp-display">30</span></span>
+                    </div>
+                    <div class="data-row">
+                        <span class="data-label">Объём <code>V</code></span>
+                        <span class="data-value"><span id="thermo-vol-display">80</span>%</span>
+                    </div>
+                </div>
+            </div>
+        </aside>
+
+    </main>
+
+    <!-- ═══════════════════════════════════════════════════════
+         МОДАЛЬНОЕ ОКНО: Теория
+         ═══════════════════════════════════════════════════════ -->
+    <div id="theory-overlay" class="modal-overlay">
+        <div class="modal-container glass-panel">
+            <div class="modal-header">
+                <h2 id="theory-title">📖 Теория</h2>
+                <button id="btn-close-theory" class="btn-modal-close" title="Закрыть">✕</button>
+            </div>
+            <div id="theory-body" class="modal-body">
+                <!-- Содержимое заполняется из JS -->
+            </div>
+        </div>
+    </div>
+
+    <!-- ═══════════════════════════════════════════════════════
+         ПОДВАЛ
+         ═══════════════════════════════════════════════════════ -->
+    <footer id="app-footer">
+        <span>TechPhys Sandbox v2.0 © 2026 — Научно-исследовательский конкурс • Номинация «Инженерная мысль»</span>
+    </footer>
+
+    <script src="script.js"></script>
+</body>
+</html>

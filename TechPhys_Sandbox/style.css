@@ -1,0 +1,794 @@
+/* ═══════════════════════════════════════════════════════════════
+   TechPhys Sandbox v2.0 — Полная стилевая система
+   ─────────────────────────────────────────────────────────────
+   Архитектура: CSS Custom Properties (дизайн-токены) +
+                Glassmorphism + Premium Dark Mode +
+                Система вкладок + Модальное окно теории
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ─── 1. ДИЗАЙН-ТОКЕНЫ ─── */
+:root {
+    --bg-deep:       #06080d;
+    --bg-surface:    #0c1017;
+    --bg-elevated:   #111822;
+
+    --cyan:          #00e5ff;
+    --cyan-dim:      rgba(0, 229, 255, 0.15);
+    --cyan-glow:     rgba(0, 229, 255, 0.35);
+    --magenta:       #e040fb;
+    --magenta-dim:   rgba(224, 64, 251, 0.15);
+    --magenta-glow:  rgba(224, 64, 251, 0.35);
+    --orange:        #ff9800;
+    --orange-dim:    rgba(255, 152, 0, 0.15);
+
+    --text-primary:   #e8edf5;
+    --text-secondary: #8892a4;
+    --text-muted:     #4a5568;
+
+    --glass-bg:      rgba(12, 16, 23, 0.72);
+    --glass-border:  rgba(255, 255, 255, 0.06);
+    --glass-blur:    16px;
+
+    --panel-width:   280px;
+    --header-height: 52px;
+    --footer-height: 32px;
+    --radius:        4px;
+    --radius-lg:     6px;
+
+    --font-main:     'Segoe UI', 'Inter', system-ui, -apple-system, sans-serif;
+    --font-mono:     'JetBrains Mono', 'Fira Code', 'Consolas', monospace;
+    --transition:    0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* ─── 2. СБРОС И БАЗОВЫЕ СТИЛИ ─── */
+*, *::before, *::after {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+    overflow: hidden;
+    background: var(--bg-deep);
+    color: var(--text-primary);
+    font-family: var(--font-main);
+    font-size: 13px;
+    line-height: 1.5;
+    -webkit-font-smoothing: antialiased;
+}
+
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+        radial-gradient(ellipse 80% 50% at 20% 0%, var(--cyan-dim) 0%, transparent 60%),
+        radial-gradient(ellipse 60% 40% at 80% 100%, var(--magenta-dim) 0%, transparent 60%);
+    pointer-events: none;
+    z-index: 0;
+}
+
+
+/* ─── 3. ШАПКА ─── */
+#app-header {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    height: var(--header-height);
+    padding: 0 20px;
+    background: var(--glass-bg);
+    border-bottom: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    gap: 16px;
+}
+
+.header-brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+}
+
+.brand-icon {
+    font-size: 22px;
+    filter: drop-shadow(0 0 6px var(--cyan));
+}
+
+.header-brand h1 {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+}
+
+.accent-cyan {
+    color: var(--cyan);
+    text-shadow: 0 0 12px var(--cyan-glow);
+}
+
+/* Вкладки в шапке */
+.tab-nav {
+    display: flex;
+    gap: 4px;
+    margin-left: 20px;
+}
+
+.tab-btn {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 16px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.tab-btn:hover {
+    color: var(--text-secondary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.tab-btn.active {
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    border-color: rgba(0, 229, 255, 0.25);
+    text-shadow: 0 0 8px var(--cyan-glow);
+}
+
+.tab-icon {
+    font-size: 14px;
+}
+
+/* Правая часть шапки */
+.header-right {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.status-badge {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    padding: 3px 10px;
+    border-radius: var(--radius);
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid var(--glass-border);
+    color: var(--text-secondary);
+}
+
+/* Кнопка «Теория» */
+.btn-theory {
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--orange);
+    background: var(--orange-dim);
+    border: 1px solid rgba(255, 152, 0, 0.3);
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    font-family: var(--font-main);
+}
+
+.btn-theory:hover {
+    background: rgba(255, 152, 0, 0.25);
+    box-shadow: 0 0 16px rgba(255, 152, 0, 0.2);
+}
+
+
+/* ─── 4. ЛЕЙАУТ ─── */
+#app-layout {
+    position: relative;
+    z-index: 1;
+    display: flex;
+    height: calc(100vh - var(--header-height) - var(--footer-height));
+}
+
+
+/* ─── 5. СТЕКЛЯННЫЕ ПАНЕЛИ ─── */
+.glass-panel {
+    width: var(--panel-width);
+    min-width: var(--panel-width);
+    background: var(--glass-bg);
+    border-right: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+    overflow-y: auto;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+#panel-inspector {
+    border-right: none;
+    border-left: 1px solid var(--glass-border);
+}
+
+.panel-title {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+
+/* ─── 6. СИСТЕМА ВКЛАДОК (показ/скрытие контента) ─── */
+.tab-content {
+    display: none;
+}
+
+.tab-content.active {
+    display: block;
+}
+
+/* Для инспектора-термо (flex) */
+#inspector-thermo .inspector-content {
+    flex-direction: column;
+}
+
+
+/* ─── 7. СЕКЦИИ УПРАВЛЕНИЯ ─── */
+.control-section {
+    margin-bottom: 16px;
+    padding-bottom: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.03);
+}
+
+.control-section:last-child {
+    border-bottom: none;
+    margin-bottom: 0;
+}
+
+.section-label {
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    color: var(--text-muted);
+    margin-bottom: 10px;
+    font-weight: 600;
+}
+
+
+/* ─── 8. КНОПКИ ─── */
+.button-group {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.btn {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    padding: 8px 12px;
+    font-family: var(--font-main);
+    font-size: 12px;
+    font-weight: 600;
+    border: 1px solid transparent;
+    border-radius: var(--radius);
+    cursor: pointer;
+    transition: all var(--transition);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn:active {
+    transform: scale(0.97);
+}
+
+.btn-cyan {
+    background: rgba(0, 229, 255, 0.08);
+    border-color: rgba(0, 229, 255, 0.25);
+    color: var(--cyan);
+}
+
+.btn-cyan:hover {
+    background: rgba(0, 229, 255, 0.15);
+    box-shadow: 0 0 20px rgba(0, 229, 255, 0.15), inset 0 0 20px rgba(0, 229, 255, 0.05);
+}
+
+.btn-magenta {
+    background: rgba(224, 64, 251, 0.08);
+    border-color: rgba(224, 64, 251, 0.25);
+    color: var(--magenta);
+}
+
+.btn-magenta:hover {
+    background: rgba(224, 64, 251, 0.15);
+    box-shadow: 0 0 20px rgba(224, 64, 251, 0.15), inset 0 0 20px rgba(224, 64, 251, 0.05);
+}
+
+.btn-outline {
+    background: transparent;
+    border-color: var(--glass-border);
+    color: var(--text-secondary);
+}
+
+.btn-outline:hover {
+    border-color: rgba(255, 255, 255, 0.15);
+    color: var(--text-primary);
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.btn-danger:hover {
+    border-color: rgba(255, 80, 80, 0.3);
+    color: #ff5050;
+    background: rgba(255, 80, 80, 0.06);
+}
+
+.btn-icon {
+    font-size: 10px;
+}
+
+
+/* ─── 9. ПОЛЗУНКИ ─── */
+.slider-group {
+    margin-bottom: 14px;
+}
+
+.slider-group:last-child {
+    margin-bottom: 0;
+}
+
+.slider-group label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-bottom: 6px;
+}
+
+.slider-group label code {
+    font-family: var(--font-mono);
+    font-size: 11px;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    padding: 1px 5px;
+    border-radius: 3px;
+}
+
+.slider-group label output {
+    margin-left: auto;
+    font-family: var(--font-mono);
+    font-size: 12px;
+    color: var(--text-primary);
+    font-weight: 600;
+}
+
+input[type="range"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 4px;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+    outline: none;
+    cursor: pointer;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 14px;
+    height: 14px;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+    cursor: grab;
+    transition: box-shadow var(--transition);
+}
+
+input[type="range"]::-webkit-slider-thumb:hover {
+    box-shadow: 0 0 16px var(--cyan-glow);
+}
+
+input[type="range"]::-moz-range-thumb {
+    width: 14px;
+    height: 14px;
+    border: none;
+    border-radius: 50%;
+    background: var(--cyan);
+    box-shadow: 0 0 8px var(--cyan-glow);
+    cursor: grab;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    background: linear-gradient(to right,
+        rgba(0, 229, 255, 0.3) 0%,
+        rgba(0, 229, 255, 0.05) 100%);
+    border-radius: 2px;
+}
+
+
+/* ─── 10. ЧЕКБОКСЫ ─── */
+.toggle-label {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px 0;
+    font-size: 12px;
+    color: var(--text-secondary);
+    cursor: pointer;
+    transition: color var(--transition);
+}
+
+.toggle-label:hover {
+    color: var(--text-primary);
+}
+
+.toggle-label input[type="checkbox"] {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 32px;
+    height: 16px;
+    border-radius: 8px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    position: relative;
+    cursor: pointer;
+    transition: all var(--transition);
+    flex-shrink: 0;
+}
+
+.toggle-label input[type="checkbox"]::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--text-muted);
+    transition: all var(--transition);
+}
+
+.toggle-label input[type="checkbox"]:checked {
+    background: rgba(0, 229, 255, 0.2);
+    border-color: rgba(0, 229, 255, 0.4);
+}
+
+.toggle-label input[type="checkbox"]:checked::after {
+    left: 18px;
+    background: var(--cyan);
+    box-shadow: 0 0 6px var(--cyan-glow);
+}
+
+
+/* ─── 11. CANVAS ─── */
+#canvas-wrapper {
+    flex: 1;
+    position: relative;
+    overflow: hidden;
+    background: var(--bg-surface);
+    box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.5);
+}
+
+#physics-canvas {
+    display: block;
+    width: 100%;
+    height: 100%;
+    cursor: crosshair;
+}
+
+#canvas-overlay-hint {
+    position: absolute;
+    bottom: 16px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 11px;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    pointer-events: none;
+    opacity: 0.6;
+    transition: opacity 0.5s;
+    animation: pulse-glow 3s ease-in-out infinite;
+}
+
+
+/* ─── 12. ИНСПЕКТОР ─── */
+.inspector-placeholder {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 200px;
+    text-align: center;
+    color: var(--text-muted);
+}
+
+.placeholder-icon {
+    font-size: 28px;
+    margin-bottom: 8px;
+    opacity: 0.4;
+}
+
+.inspector-content {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.data-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 7px 10px;
+    border-radius: var(--radius);
+    transition: background var(--transition);
+}
+
+.data-row:hover {
+    background: rgba(255, 255, 255, 0.02);
+}
+
+.data-header {
+    padding: 10px;
+    margin-bottom: 6px;
+    background: rgba(255, 255, 255, 0.03);
+    border-radius: var(--radius-lg);
+    justify-content: flex-start;
+    gap: 10px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.shape-badge {
+    font-size: 16px;
+}
+
+.data-label {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+.data-label code {
+    font-family: var(--font-mono);
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.data-value {
+    font-family: var(--font-mono);
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.highlight-cyan {
+    border-left: 2px solid var(--cyan);
+    background: var(--cyan-dim);
+}
+
+.highlight-magenta {
+    border-left: 2px solid var(--magenta);
+    background: var(--magenta-dim);
+}
+
+.sub-row {
+    padding-left: 20px;
+}
+
+.sub-row .data-label {
+    font-size: 10px;
+    color: var(--text-muted);
+}
+
+.sub-row .data-value {
+    font-size: 11px;
+    color: var(--text-secondary);
+}
+
+
+/* ─── 13. МОДАЛЬНОЕ ОКНО ТЕОРИИ ─── */
+.modal-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(6, 8, 13, 0.6);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s ease;
+}
+
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-container {
+    width: min(720px, 90vw);
+    max-height: 80vh;
+    border-radius: 12px;
+    border: 1px solid var(--glass-border);
+    background: rgba(12, 16, 23, 0.92);
+    backdrop-filter: blur(24px);
+    box-shadow:
+        0 0 60px rgba(0, 0, 0, 0.5),
+        0 0 40px rgba(0, 229, 255, 0.05);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.3s ease;
+}
+
+.modal-overlay.visible .modal-container {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 24px;
+    border-bottom: 1px solid var(--glass-border);
+}
+
+.modal-header h2 {
+    font-size: 18px;
+    font-weight: 700;
+    letter-spacing: 1px;
+}
+
+.btn-modal-close {
+    width: 32px;
+    height: 32px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    color: var(--text-muted);
+    background: transparent;
+    border: 1px solid var(--glass-border);
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all var(--transition);
+}
+
+.btn-modal-close:hover {
+    color: #ff5050;
+    border-color: rgba(255, 80, 80, 0.3);
+    background: rgba(255, 80, 80, 0.06);
+}
+
+.modal-body {
+    padding: 24px;
+    overflow-y: auto;
+    line-height: 1.7;
+    color: var(--text-secondary);
+    font-size: 13px;
+}
+
+.modal-body h3 {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 20px 0 8px 0;
+    padding-bottom: 6px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.04);
+}
+
+.modal-body h3:first-child {
+    margin-top: 0;
+}
+
+.modal-body p {
+    margin-bottom: 10px;
+}
+
+.modal-body .formula {
+    display: inline-block;
+    font-family: var(--font-mono);
+    font-size: 13px;
+    color: var(--cyan);
+    background: var(--cyan-dim);
+    padding: 2px 8px;
+    border-radius: 4px;
+    margin: 2px 0;
+}
+
+.modal-body .formula-magenta {
+    color: var(--magenta);
+    background: var(--magenta-dim);
+}
+
+.modal-body .formula-orange {
+    color: var(--orange);
+    background: var(--orange-dim);
+}
+
+.modal-body ul {
+    margin: 8px 0 12px 16px;
+}
+
+.modal-body li {
+    margin-bottom: 4px;
+}
+
+/* Скроллбар модального окна */
+.modal-body::-webkit-scrollbar {
+    width: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+}
+
+
+/* ─── 14. ПОДВАЛ ─── */
+#app-footer {
+    position: relative;
+    z-index: 10;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    height: var(--footer-height);
+    font-size: 10px;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    background: var(--glass-bg);
+    border-top: 1px solid var(--glass-border);
+    backdrop-filter: blur(var(--glass-blur));
+    -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+
+/* ─── 15. СКРОЛЛБАР ПАНЕЛЕЙ ─── */
+.glass-panel::-webkit-scrollbar {
+    width: 4px;
+}
+
+.glass-panel::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.glass-panel::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: 2px;
+}
+
+
+/* ─── 16. АНИМАЦИИ ─── */
+@keyframes pulse-glow {
+    0%, 100% { opacity: 0.6; }
+    50%      { opacity: 1; }
+}
+
+.inspector-content {
+    animation: fadeInUp 0.3s ease-out;
+}
+
+@keyframes fadeInUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to   { opacity: 1; transform: translateY(0); }
+}
