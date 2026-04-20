@@ -135,6 +135,14 @@
                 <div class="sidebar-section">
                     <div class="section-header">
                         <span class="icon">🎯</span> <span data-i18n="tasks">Задания</span>
+                        <div class="header-actions-small">
+                            <select id="mission-diff-select" class="mini-select">
+                                <option value="easy">Easy</option>
+                                <option value="medium">Medium</option>
+                                <option value="hard">Hard</option>
+                            </select>
+                            <button id="refresh-missions-btn" title="Refresh missions via AI">🔄</button>
+                        </div>
                     </div>
                     <div class="mission-container" id="mission-list">
                         <!-- Loaded by MissionManager.js -->
@@ -161,22 +169,22 @@
                 <div class="chat-header">
                     <div class="bot-info" id="chat-header-toggle" style="cursor:pointer" title="Свернуть/развернуть чат">
                         <div class="bot-status online"></div>
-                        <span class="bot-name">TechPhys Support</span>
+                        <span class="bot-name" data-i18n="chat_bot_name">TechPhys Support</span>
                     </div>
                     <button id="chat-close" class="close-btn" title="Закрыть чат помощника">&times;</button>
                 </div>
                 <div class="chat-content" id="chat-messages">
-                    <div class="message bot">Привет! Я твой ИИ-помощник. Задавай любые вопросы по физике или по работе симулятора!</div>
+                    <div class="message bot" data-i18n="chat_welcome">Привет! Я твой ИИ-помощник. Задавай любые вопросы по физике или по работе симулятора!</div>
                 </div>
                 <div class="chat-footer">
                     <div class="chip-container" id="chat-chips">
-                        <button class="chat-chip">Законы Ньютона</button>
-                        <button class="chat-chip">Что такое МКТ?</button>
-                        <button class="chat-chip">Зеркала и линзы</button>
-                        <button class="chat-chip">Заряды и поля</button>
+                        <button class="chat-chip" data-i18n="chip_newton">Законы Ньютона</button>
+                        <button class="chat-chip" data-i18n="chip_mkt">Что такое МКТ?</button>
+                        <button class="chat-chip" data-i18n="chip_optics">Зеркала и линзы</button>
+                        <button class="chat-chip" data-i18n="chip_electro">Заряды и поля</button>
                     </div>
                     <div class="input-row">
-                        <input type="text" id="chat-input" placeholder="Ваш вопрос..." autocomplete="off">
+                        <input type="text" id="chat-input" data-i18n-placeholder="chat_placeholder" placeholder="Ваш вопрос..." autocomplete="off">
                         <button id="chat-send" class="send-btn" title="Отправить сообщение">🚀</button>
                     </div>
                 </div>
@@ -198,27 +206,27 @@
         <div id="tutorial-modal" class="modal-overlay hidden">
             <div class="modal glass tutorial-card">
                 <div class="modal-header">
-                    <h2>🚀 TechPhys: Быстрый старт</h2>
+                    <h2 data-i18n="tutorial_title">🚀 TechPhys: Быстрый старт</h2>
                     <button class="modal-close" id="close-tutorial">&times;</button>
                 </div>
                 <div class="modal-content">
                     <div class="tutorial-steps">
                         <div class="step">
                             <span class="step-num">1</span>
-                            <p><b>Выберите лабораторию</b> во вкладках сверху (Механика, Оптика и др.). Каждая имеет свой набор инструментов.</p>
+                            <p data-i18n="tutorial_step_1"><b>Выберите лабораторию</b> во вкладках сверху (Механика, Оптика и др.). Каждая имеет свой набор инструментов.</p>
                         </div>
                         <div class="step">
                             <span class="step-num">2</span>
-                            <p><b>Добавляйте объекты</b> через левое меню. Вы можете перетаскивать их мышкой прямо на холсте!</p>
+                            <p data-i18n="tutorial_step_2"><b>Добавляйте объекты</b> через левое меню. Вы можете перетаскивать их мышкой прямо на холсте!</p>
                         </div>
                         <div class="step">
                             <span class="step-num">3</span>
-                            <p><b>Следите за графиками</b> в правой панели и экспортируйте данные в CSV для ваших отчетов.</p>
+                            <p data-i18n="tutorial_step_3"><b>Следите за графиками</b> в правой панели и экспортируйте данные в CSV для ваших отчетов.</p>
                         </div>
                     </div>
                 </div>
                 <div class="modal-footer">
-                    <button class="next-btn" id="tutorial-ok">Понятно, в бой!</button>
+                    <button class="next-btn" id="tutorial-ok" data-i18n="tutorial_ok">Понятно, в бой!</button>
                 </div>
             </div>
         </div>

@@ -141,4 +141,36 @@ export class ChatController {
         const el = document.getElementById(id);
         if (el) el.remove();
     }
+
+    async requestMissions(category, difficulty) {
+        try {
+            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': `Bearer ${this.openaiKey}`
+                },
+                body: JSON.stringify({
+                    model: "gpt-4o",
+                    messages: [
+                        { 
+                            role: "system", 
+                            content: `You are a physics educational system. Generate 3 distinct interactive sandbox missions for the category: ${category}. Difficulty: ${difficulty}. 
+                            Return valid JSON ONLY in this format: 
+                            { "missions": [ { "id": "u1", "title": {"ru": "...", "en": "..."}, "desc": {"ru": "...", "en": "..."}, "type": "action_check" } ] }
+                            Types: action_check (requires user to do something). Titles and desk must be fun and academic.`
+                        }
+                    ],
+                    response_format: { type: "json_object" },
+                    temperature: 0.8
+                })
+            });
+            const data = await response.json();
+            const missionsStr = data.choices[0].message.content;
+            return JSON.parse(missionsStr).missions;
+        } catch (err) {
+            console.error("AI Mission Fetch Error:", err);
+            return null;
+        }
+    }
 }

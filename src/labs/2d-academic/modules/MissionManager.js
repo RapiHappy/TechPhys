@@ -1,47 +1,129 @@
 export class MissionManager {
     constructor(engine) {
         this.engine = engine;
-        this.missions = [
-            // MECHANICS
-            { id: 'm1', category: 'mechanics', title: { ru: "Первый закон", en: "First Law" }, desc: { ru: "Создайте шар массой более 5 кг", en: "Create a ball with mass > 5kg" }, check: () => (this.engine.labs.mechanics.objects || []).some(o => o.m > 5), done: false },
-            { id: 'm2', category: 'mechanics', title: { ru: "Высокий полет", en: "High Flight" }, desc: { ru: "Поднимите объект выше 400px", en: "Lift an object above 400px" }, check: () => (this.engine.labs.mechanics.objects || []).some(o => o.pos.y < 100), done: false },
-            { id: 'm3', category: 'mechanics', title: { ru: "Маятник", en: "Pendulum" }, desc: { ru: "Запустите сценарий 'Маятник'", en: "Load the 'Pendulum' preset" }, check: () => (this.engine.labs.mechanics.objects || []).some(o => o.type === 'pendulum'), done: false },
-            { id: 'm4', category: 'mechanics', title: { ru: "Стартап", en: "Startup" }, desc: { ru: "Поставьте симуляцию на паузу", en: "Pause the simulation" }, check: () => this.engine.isPaused, done: false },
-
-            // THERMO
+        this.difficulty = 'easy';
+        this.aiMissions = [];
+        this.lastAiFetch = null;
+        
+        // Base static missions for fallback
+        this.staticMissions = [
+            { id: 'm1', category: 'mechanics', title: { ru: "Первый закон", en: "First Law" }, desc: { ru: "Создайте шар массой более 5 кг", en: "Create a ball with mass > 5kg" }, check: () => (this.engine.labs.mechanics.objects || []).some(o => (o.m || 0) > 5), done: false },
             { id: 't1', category: 'thermo', title: { ru: "Нагрев", en: "Heating" }, desc: { ru: "Ускорьте время до 2.0x", en: "Set sim speed to 2.0x" }, check: () => this.engine.timeScale >= 2.0, done: false },
-            { id: 't2', category: 'thermo', title: { ru: "Газовая атака", en: "Gas Attack" }, desc: { ru: "Перейдите во вкладку Термодинамики", en: "Switch to Thermodynamics tab" }, check: () => this.engine.activeLab === 'thermo', done: false },
-            { id: 't3', category: 'thermo', title: { ru: "Идеальный газ", en: "Ideal Gas" }, desc: { ru: "Создайте более 50 частиц", en: "Spawn more than 50 particles" }, check: () => (this.engine.labs.thermo.particles || []).length > 50, done: false },
-            { id: 't4', category: 'thermo', title: { ru: "Давление", en: "Pressure" }, desc: { ru: "Достигните давления > 100", en: "Reach pressure > 100" }, check: () => (this.engine.labs.thermo.pressure || 0) > 100, done: false },
-
-            // OPTICS
-            { id: 'o1', category: 'optics', title: { ru: "Да будет свет", en: "Let there be light" }, desc: { ru: "Включите лазер в Оптике", en: "Enable laser in Optics" }, check: () => this.engine.activeLab === 'optics' && (this.engine.labs.optics.lasers || []).length > 0, done: false },
-            { id: 'o2', category: 'optics', title: { ru: "Отражение", en: "Reflection" }, desc: { ru: "Создайте зеркало", en: "Place a mirror" }, check: () => (this.engine.labs.optics.objects || []).some(o => o.type === 'mirror'), done: false },
-            { id: 'o3', category: 'optics', title: { ru: "Угол падения", en: "Angle of Incidence" }, desc: { ru: "Поверните объект на 45°", en: "Rotate an object to 45°" }, check: () => (this.engine.selection && Math.abs(this.engine.selection.angle - Math.PI/4) < 0.1), done: false },
-            { id: 'o4', category: 'optics', title: { ru: "Фокус", en: "Focus" }, desc: { ru: "Используйте линзу", en: "Use a lens" }, check: () => (this.engine.labs.optics.objects || []).some(o => o.type === 'lens'), done: false },
-            
-            // ELECTRO
-            { id: 'e1', category: 'electro', title: { ru: "Заряд", en: "Charge" }, desc: { ru: "Разместите положительный заряд", en: "Place a positive charge" }, check: () => (this.engine.labs.electro.charges || []).some(c => c.q > 0), done: false }
+            { id: 'o1', category: 'optics', title: { ru: "Да будет свет", en: "Let there be light" }, desc: { ru: "Включите лазер в Оптике", en: "Enable laser in Optics" }, check: () => this.engine.activeLab === 'optics' && (this.engine.labs.optics.lasers || []).length > 0, done: false }
         ];
 
         this.init();
     }
 
     init() {
+        this.loadPersistence();
+        this.checkDailyReset();
         this.render();
         setInterval(() => this.update(), 1000);
+        
+        // Initial AI generation if needed
+        setTimeout(() => {
+            if (this.aiMissions.length === 0) this.generateAIMissions();
+        }, 2000);
+    }
+
+    setDifficulty(val) {
+        this.difficulty = val;
+        this.generateAIMissions(true);
+    }
+
+    checkDailyReset() {
+        const today = new Date().toDateString();
+        const lastDate = localStorage.getItem('techphys_mission_date');
+        if (lastDate !== today) {
+            this.aiMissions = [];
+            localStorage.setItem('techphys_mission_date', today);
+            this.savePersistence();
+        }
+    }
+
+    async generateAIMissions(force = false) {
+        if (!this.engine.chat) return;
+        
+        // Prevent spamming
+        const now = Date.now();
+        if (!force && this.lastAiFetch && (now - this.lastAiFetch < 60000)) return;
+        this.lastAiFetch = now;
+
+        const container = document.getElementById('mission-list');
+        if (container) container.innerHTML = '<div class="loading-text">🔄 Генерируем задания от ИИ...</div>';
+
+        const missions = await this.engine.chat.requestMissions(this.engine.activeLab, this.difficulty);
+        if (missions) {
+            this.aiMissions = missions.map(m => ({ ...m, done: false, type: 'ai' }));
+            this.savePersistence();
+            this.render();
+        } else {
+            console.warn("AI Missions failed, using static fallback.");
+            this.render();
+        }
     }
 
     update() {
         let changed = false;
-        this.missions.forEach(m => {
-            if (!m.done && m.check()) {
+        
+        // Check Static
+        this.staticMissions.forEach(m => {
+            if (!m.done && m.check && m.check()) {
                 m.done = true;
                 changed = true;
                 this.notify(m);
             }
         });
-        if (changed) this.render();
+
+        // Check AI Missions (Generic logic)
+        this.aiMissions.forEach(m => {
+            if (!m.done && this.genericCheck(m)) {
+                m.done = true;
+                changed = true;
+                this.notify(m);
+            }
+        });
+
+        if (changed) {
+            this.savePersistence();
+            this.render();
+        }
+    }
+
+    genericCheck(m) {
+        const d = m.desc.en.toLowerCase();
+        const lab = this.engine.labs[this.engine.activeLab];
+
+        // Heuristic checks based on keywords in AI description
+        if (d.includes("create") || d.includes("spawn") || d.includes("place")) {
+            const count = (lab.objects?.length || 0) + (lab.particles?.length || 0) + (lab.charges?.length || 0);
+            return count > 0;
+        }
+        if (d.includes("pause")) return this.engine.isPaused;
+        if (d.includes("speed")) return this.engine.timeScale !== 1.0;
+        if (d.includes("delete") || d.includes("clear")) return false; // Hard to check purely by AI text without signal
+
+        return false;
+    }
+
+    savePersistence() {
+        localStorage.setItem('techphys_ai_missions', JSON.stringify(this.aiMissions));
+        localStorage.setItem('techphys_static_missions', JSON.stringify(this.staticMissions.map(m => ({id: m.id, done: m.done}))));
+    }
+
+    loadPersistence() {
+        const ai = localStorage.getItem('techphys_ai_missions');
+        if (ai) this.aiMissions = JSON.parse(ai);
+
+        const stat = localStorage.getItem('techphys_static_missions');
+        if (stat) {
+            const savedStat = JSON.parse(stat);
+            this.staticMissions.forEach(m => {
+                const found = savedStat.find(s => s.id === m.id);
+                if (found) m.done = found.done;
+            });
+        }
     }
 
     notify(m) {
@@ -68,11 +150,18 @@ export class MissionManager {
         if (!container) return;
 
         const lang = document.documentElement.getAttribute('lang') || 'ru';
-        container.innerHTML = this.missions.map(m => `
-            <div class="mission-item ${m.done ? 'done' : ''}">
+        const all = [...this.staticMissions.filter(m => m.category === this.engine.activeLab), ...this.aiMissions];
+        
+        if (all.length === 0) {
+            container.innerHTML = '<div class="empty-state">Нет активных заданий</div>';
+            return;
+        }
+
+        container.innerHTML = all.map(m => `
+            <div class="mission-item ${m.done ? 'done' : ''} ${m.type === 'ai' ? 'ai-tag' : ''}">
                 <div class="status-dot"></div>
                 <div class="mission-info">
-                    <div class="mission-title">${m.title[lang]}</div>
+                    <div class="mission-title">${m.title[lang]} ${m.type === 'ai' ? '<span class="ai-badge">AI</span>' : ''}</div>
                     <div class="mission-desc">${m.desc[lang]}</div>
                 </div>
             </div>

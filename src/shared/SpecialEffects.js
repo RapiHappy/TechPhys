@@ -53,8 +53,8 @@ export class MasterVortexLoader {
 
     animate() {
         if (!this.active) return;
-        // Lighter clear for smoother trails
-        this.ctx.fillStyle = 'rgba(6, 8, 13, 0.12)';
+        // Even lighter clear for longer, softer trails
+        this.ctx.fillStyle = 'rgba(6, 8, 13, 0.08)';
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
         this.particles.forEach(p => {
@@ -80,10 +80,10 @@ class VortexParticle {
         this.y = cy + (Math.random() - 0.5) * 500;
         this.originX = this.x;
         this.originY = this.y;
-        this.size = Math.random() * 1.0 + 0.3; // Very small particles
-        this.color = `hsla(${180 + Math.random() * 40}, 100%, 75%, 0.45)`; // Even softer alpha
-        this.ease = 0.02 + Math.random() * 0.02; // Very slow formation
-        this.friction = 0.97; // High friction for stable, soft movement
+        this.size = Math.random() * 0.8 + 0.2; // Tiny particles
+        this.color = `hsla(${180 + Math.random() * 40}, 100%, 75%, 0.35)`; // Subtle alpha
+        this.ease = 0.015 + Math.random() * 0.015; // Even slower formation
+        this.friction = 0.98; // Very smooth movement
         this.vx = 0;
         this.vy = 0;
     }

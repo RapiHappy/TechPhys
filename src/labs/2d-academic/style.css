@@ -438,6 +438,60 @@ input[type="range"]::-webkit-slider-thumb {
 .hub-icon { width: 70px; height: 70px; font-size: 2.2rem; }
 
 /* MISSION STYLES */
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0 5px;
+}
+.header-actions-small {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+.mini-select {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.1);
+    color: var(--text-secondary);
+    font-size: 0.65rem;
+    padding: 2px 4px;
+    border-radius: 4px;
+    cursor: pointer;
+}
+#refresh-missions-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 0.8rem;
+    transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+#refresh-missions-btn:hover {
+    transform: rotate(180deg) scale(1.2);
+}
+.ai-badge {
+    background: linear-gradient(45deg, #3b82f6, #8b5cf6);
+    color: white;
+    font-size: 0.6rem;
+    padding: 1px 4px;
+    border-radius: 4px;
+    margin-left: 5px;
+    font-weight: 700;
+    box-shadow: 0 0 8px rgba(139, 92, 246, 0.3);
+}
+.loading-text {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    padding: 10px;
+    text-align: center;
+    font-style: italic;
+}
+.mission-item.ai-tag {
+    border-left: 2px solid #8b5cf6;
+}
+.mission-item.ai-tag:hover {
+    background: rgba(139, 92, 246, 0.05);
+}
+
 .mission-container {
     display: flex;
     flex-direction: column;

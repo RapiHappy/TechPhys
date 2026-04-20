@@ -99,6 +99,76 @@
             font-size: 0.95rem;
             line-height: 1.5;
         }
+
+        /* LOCKED STATE */
+        .hub-card.locked {
+            opacity: 0.8;
+            filter: grayscale(0.2);
+            cursor: pointer;
+        }
+        .hub-card.locked:hover {
+            border-color: var(--secondary);
+            box-shadow: 0 10px 40px rgba(255, 0, 255, 0.1);
+        }
+        .dev-badge {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: linear-gradient(90deg, #ff00ff, #a855f7);
+            padding: 4px 10px;
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 0 15px rgba(255, 0, 255, 0.4);
+        }
+
+        /* MODAL STYLES */
+        .modal-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(15px);
+            z-index: 100000;
+            display: none;
+            align-items: center; justify-content: center;
+        }
+        .modal-glass {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 3rem;
+            border-radius: 30px;
+            max-width: 500px;
+            text-align: center;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+        }
+        .modal-glass h2 {
+            font-size: 2.5rem;
+            margin-bottom: 1rem;
+            background: linear-gradient(90deg, var(--accent), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .modal-glass p {
+            font-size: 1.1rem;
+            opacity: 0.8;
+            margin-bottom: 2rem;
+        }
+        .close-modal-btn {
+            background: var(--accent);
+            color: black;
+            border: none;
+            padding: 10px 30px;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .close-modal-btn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 20px rgba(0, 240, 255, 0.4);
+        }
         .btn {
             margin-top: auto;
             padding: 0.8rem;
@@ -139,27 +209,37 @@
                 <div class="btn">Launch Lab</div>
             </a>
             
-            <a href="src/labs/3d-ar/index.html" class="hub-card">
+            <div class="hub-card locked" onclick="showSoon()">
+                <div class="dev-badge">В РАЗРАБОТКЕ</div>
                 <div class="icon">🔮</div>
                 <h3>3D Neural AR</h3>
-                <div class="badge" style="background: var(--secondary); font-size: 0.7rem; padding: 2px 8px; border-radius: 10px; width: fit-content; color: white">PREMIUM</div>
                 <p>Immersive 3D physics experiments with Augmented Reality and Voice Control features.</p>
                 <div class="btn">Enter AR</div>
-            </a>
+            </div>
             
-            <a href="src/labs/neural-guide/index.html" class="hub-card">
+            <div class="hub-card locked" onclick="showSoon()">
+                <div class="dev-badge">В РАЗРАБОТКЕ</div>
                 <div class="icon">🧠</div>
                 <h3>AI Physics Guide</h3>
                 <p>Smart interactive assistant that understands physics commands and performs live experiments.</p>
                 <div class="btn">Talk to AI</div>
-            </a>
+            </div>
             
-            <a href="/src/labs/legacy-sandbox/index.html" class="hub-card">
+            <div class="hub-card locked" onclick="showSoon()">
+                <div class="dev-badge">В РАЗРАБОТКЕ</div>
                 <div class="icon">🏖️</div>
                 <h3>Legacy Sandbox</h3>
                 <p>The classic physics playground for unrestricted experimentation and historical compatibility.</p>
                 <div class="btn">Open Playground</div>
-            </a>
+            </div>
+        </div>
+
+        <div id="soon-modal" class="modal-overlay" onclick="hideSoon()">
+            <div class="modal-glass" onclick="event.stopPropagation()">
+                <h2>СКОРО!</h2>
+                <p>Этот раздел находится на стадии активной разработки. Мы создаем нечто невероятное — следите за обновлениями!</p>
+                <button class="close-modal-btn" onclick="hideSoon()">ПОНЯТНО</button>
+            </div>
         </div>
     <script type="module">
         import { PremiumControls } from './src/shared/PremiumControls.js';
@@ -202,10 +282,26 @@
             if (i18n.lang === 'ru') {
                 document.querySelector('.tagline').innerText = texts.ru.tagline;
                 document.querySelectorAll('.btn').forEach((btn, i) => {
-                    const hubTexts = [texts.ru.launch, texts.ru.enter, texts.ru.talk, texts.ru.playground];
+                    const hubTexts = [texts.ru.launch, "Войти в AR", "Чат с ИИ", "Песочница"];
                     btn.innerText = hubTexts[i];
                 });
             }
+        };
+
+        window.showSoon = () => {
+            const modal = document.getElementById('soon-modal');
+            if (modal) modal.style.display = 'flex';
+        };
+
+        window.hideSoon = () => {
+            const modal = document.getElementById('soon-modal');
+            if (modal) modal.style.display = 'none';
+        };
+        };
+
+        window.hideSoon = () => {
+            const modal = document.getElementById('soon-modal');
+            modal.style.display = 'none';
         };
     </script>
 </body>

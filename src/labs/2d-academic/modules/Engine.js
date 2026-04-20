@@ -35,9 +35,20 @@ export const translations = {
         stiffness: "Жесткость (k)",
         mass: "Масса (m)",
         angle: "Угол (α)",
-        sim_control: "⏱️ УПРАВЛЕНИЕ",
         sim_speed: "Скорость",
-        labs_hub: "Центр Лабораторий"
+        labs_hub: "Центр Лабораторий",
+        chat_bot_name: "TechPhys Помощник",
+        chat_welcome: "Привет! Я твой ИИ-помощник. Задавай любые вопросы по физике или по работе симулятора!",
+        chat_placeholder: "Ваш вопрос...",
+        chip_newton: "Законы Ньютона",
+        chip_mkt: "Что такое МКТ?",
+        chip_optics: "Зеркала и линзы",
+        chip_electro: "Заряды и поля",
+        tutorial_title: "🚀 Быстрый старт",
+        tutorial_step_1: "Выберите лабораторию во вкладках сверху. Каждая имеет свой набор инструментов.",
+        tutorial_step_2: "Добавляйте объекты через левое меню. Вы можете перетаскивать их мышкой!",
+        tutorial_step_3: "Следите за графиками в правой панели и экспортируйте данные в CSV.",
+        tutorial_ok: "Понятно, в бой!"
     },
     en: {
         mechanics: "Mechanics",
@@ -68,9 +79,20 @@ export const translations = {
         stiffness: "Stiffness (k)",
         mass: "Mass (m)",
         angle: "Angle (α)",
-        sim_control: "⏱️ SIM CONTROL",
         sim_speed: "Speed",
-        labs_hub: "Labs Hub"
+        labs_hub: "Labs Hub",
+        chat_bot_name: "TechPhys Assistant",
+        chat_welcome: "Hello! I am your AI assistant. Ask me anything about physics or how this simulator works!",
+        chat_placeholder: "Your question...",
+        chip_newton: "Newton's Laws",
+        chip_mkt: "What is KMT?",
+        chip_optics: "Lenses & Mirrors",
+        chip_electro: "Charges & Fields",
+        tutorial_title: "🚀 Quick Start",
+        tutorial_step_1: "Select a lab in the top tabs. Each has its own toolset.",
+        tutorial_step_2: "Add objects from the left menu. You can drag them directly on the canvas!",
+        tutorial_step_3: "Monitor real-time charts in the right panel and export data to CSV.",
+        tutorial_ok: "Got it, let's go!"
     }
 };
 
@@ -129,6 +151,7 @@ export class Engine {
         this.labs.electro = new ElectroLab(this);
         
         this.chat = new ChatController(this);
+        this.missions = new MissionManager(this);
         
         this.setupEventListeners();
         this.updateUI();
@@ -249,6 +272,15 @@ export class Engine {
             if (el.id === 'scenario-select') {
                 this.loadScenario(el.value);
             }
+            if (el.id === 'mission-diff-select') {
+                this.missions.setDifficulty(el.value);
+            }
+        });
+
+        const refreshBtn = document.getElementById('refresh-missions-btn');
+        if (refreshBtn) {
+            refreshBtn.onclick = () => this.missions.generateAIMissions(true);
+        }
         });
 
         if (this.canvas) {
@@ -299,6 +331,12 @@ export class Engine {
             if (translations[currentLang][key]) {
                 if (el.tagName === 'OPTION') el.text = translations[currentLang][key];
                 else el.textContent = translations[currentLang][key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
+            const key = el.getAttribute('data-i18n-placeholder');
+            if (translations[currentLang][key]) {
+                el.placeholder = translations[currentLang][key];
             }
         });
     }
