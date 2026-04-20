@@ -251,10 +251,10 @@ export class QuantumPulseLoader {
     animate() {
         if (!this.active) return;
         
-        this.ctx.fillStyle = 'rgba(5, 6, 8, 0.08)'; // Higher trail persistence
+        this.ctx.fillStyle = 'rgba(5, 6, 8, 0.12)'; 
         this.ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
         
-        this.angle += 0.04; // Faster
+        this.angle += 0.03; 
         const cx = this.canvas.width / 2;
         const cy = this.canvas.height / 2;
         
@@ -263,60 +263,63 @@ export class QuantumPulseLoader {
         this.circles.forEach((c, idx) => {
             const rot = this.angle * c.speed * 50;
             
-            // Draw Orbit Ring
+            // Draw Orbit Ring - HIGHER VISIBILITY
             this.ctx.strokeStyle = c.color;
-            this.ctx.lineWidth = 3;
-            this.ctx.globalAlpha = 0.4; // MUCH MORE VISIBLE
+            this.ctx.lineWidth = 2;
+            this.ctx.globalAlpha = 0.6; 
             this.ctx.beginPath();
             this.ctx.arc(cx, cy, c.r, 0, Math.PI * 2);
             this.ctx.stroke();
             this.ctx.globalAlpha = 1.0;
             
-            // Draw Orbiting Particles
+            // Draw Orbiting Particles - OPTIMIZED
             for(let i=0; i<c.pCount; i++) {
                 const step = (Math.PI * 2) / c.pCount;
                 const a = rot + i * step;
                 const px = cx + Math.cos(a) * c.r;
                 const py = cy + Math.sin(a) * c.r;
                 
-                const grad = this.ctx.createRadialGradient(px, py, 0, px, py, 40);
-                grad.addColorStop(0, c.color);
-                grad.addColorStop(1, 'transparent');
-                
-                this.ctx.fillStyle = grad;
+                // Single glow point per particle instead of full radial gradient for every pixel
+                this.ctx.fillStyle = c.color;
+                this.ctx.shadowBlur = 20;
+                this.ctx.shadowColor = c.color;
                 this.ctx.beginPath();
-                this.ctx.arc(px, py, 40, 0, Math.PI * 2);
+                this.ctx.arc(px, py, 4, 0, Math.PI * 2);
                 this.ctx.fill();
+                this.ctx.shadowBlur = 0; // Reset for next elements
                 
                 this.ctx.fillStyle = '#fff';
                 this.ctx.beginPath();
-                this.ctx.arc(px, py, 4, 0, Math.PI * 2);
+                this.ctx.arc(px, py, 2, 0, Math.PI * 2);
                 this.ctx.fill();
             }
         });
 
-        // DRAW STARS
+        // DRAW STARS - Optimized batch rendering
         this.ctx.fillStyle = '#fff';
         this.stars.forEach(s => {
-            const x = cx + s.x * cx + Math.cos(this.angle) * 20;
-            const y = cy + s.y * cy + Math.sin(this.angle) * 20;
-            this.ctx.globalAlpha = Math.random() * 0.5 + 0.2;
+            const x = cx + s.x * cx + Math.cos(this.angle * 0.5) * 15;
+            const y = cy + s.y * cy + Math.sin(this.angle * 0.5) * 15;
+            this.ctx.globalAlpha = 0.1 + Math.random() * 0.4;
             this.ctx.fillRect(x, y, s.s, s.s);
         });
         this.ctx.globalAlpha = 1.0;
 
-        // DRAW CENTRAL QUANTUM CORE
-        const pulse = Math.sin(this.angle * 3) * 8 + 30;
-        const coreGrad = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 2.5);
+        // DRAW CENTRAL QUANTUM CORE - HIGH IMPACT
+        const pulse = Math.sin(this.angle * 2) * 5 + 35;
+        this.ctx.shadowBlur = pulse * 1.5;
+        this.ctx.shadowColor = '#00f0ff';
+        
+        const coreGrad = this.ctx.createRadialGradient(cx, cy, 0, cx, cy, pulse * 1.5);
         coreGrad.addColorStop(0, '#fff');
-        coreGrad.addColorStop(0.2, '#00f0ff');
-        coreGrad.addColorStop(0.5, 'rgba(0, 240, 255, 0.3)');
+        coreGrad.addColorStop(0.3, '#00f0ff');
         coreGrad.addColorStop(1, 'transparent');
         
         this.ctx.fillStyle = coreGrad;
         this.ctx.beginPath();
-        this.ctx.arc(cx, cy, pulse * 2, 0, Math.PI * 2);
+        this.ctx.arc(cx, cy, pulse * 1.2, 0, Math.PI * 2);
         this.ctx.fill();
+        this.ctx.shadowBlur = 0;
         
         this.ctx.globalCompositeOperation = 'source-over';
         requestAnimationFrame(() => this.animate());
