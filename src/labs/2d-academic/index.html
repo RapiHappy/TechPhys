@@ -58,10 +58,17 @@
             </div>
         </header>
 
+        <!-- MOBILE UI CONTROLS -->
+        <div class="mobile-ui-layer">
+            <button id="toggle-left-sidebar" class="mobile-fab" title="Инструменты">🛠️</button>
+            <button id="toggle-right-sidebar" class="mobile-fab" title="Данные">📊</button>
+        </div>
+
         <!-- MAIN WORKSPACE -->
         <main class="workspace">
             <!-- Left Sidebar -->
             <aside class="sidebar left-sidebar glass">
+                <button class="mobile-close-sidebar">&times;</button>
                 <div class="sidebar-scroll">
                     <div class="sidebar-group-label" data-i18n="presets">🚀 ГОТОВЫЕ СЦЕНАРИИ</div>
                     <select id="scenario-select" class="tool-btn" title="Выберите готовый эксперимент для быстрой настройки">
@@ -112,6 +119,7 @@
 
             <!-- Right Sidebar -->
             <aside class="sidebar right-sidebar glass">
+                <button class="mobile-close-sidebar">&times;</button>
                 <div class="sidebar-scroll">
                     <!-- Dynamic Inspector -->
                     <div class="sidebar-section">

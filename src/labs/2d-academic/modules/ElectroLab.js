@@ -10,7 +10,44 @@ export class ElectroLab {
         ];
     }
 
-    update() { }
+    update(dt) {
+        if (!dt || this.engine.isPaused) return;
+
+        // Dynamic charge movement (Coulomb Force)
+        this.charges.forEach((c1, i) => {
+            if (c1 === this.engine.isDragging && this.engine.selection === c1) {
+                c1.vel = new Vec2(0, 0);
+                return;
+            }
+            if (!c1.vel) c1.vel = new Vec2(0, 0);
+
+            let totalForce = new Vec2(0, 0);
+            this.charges.forEach((c2, j) => {
+                if (i === j) return;
+                const distVec = c1.pos.sub(c2.pos);
+                const distSq = Math.max(distVec.x * distVec.x + distVec.y * distVec.y, 400); // Softening
+                const forceMag = (c1.q * c2.q) / distSq * 50;
+                totalForce = totalForce.add(distVec.unit().mult(forceMag));
+            });
+
+            // F = m*a => a = F/m (assuming m=1 for simplicity)
+            c1.vel = c1.vel.add(totalForce.mult(dt * 60));
+            // Damping to keep things stable
+            c1.vel = c1.vel.mult(Math.pow(0.95, dt * 60));
+            c1.pos = c1.pos.add(c1.vel.mult(dt));
+
+            // Bounce off walls
+            const r = 15;
+            if (c1.pos.x < r || c1.pos.x > this.engine.canvas.width - r) {
+                c1.pos.x = Math.max(r, Math.min(this.engine.canvas.width - r, c1.pos.x));
+                c1.vel.x *= -0.5;
+            }
+            if (c1.pos.y < r || c1.pos.y > this.engine.canvas.height - r) {
+                c1.pos.y = Math.max(r, Math.min(this.engine.canvas.height - r, c1.pos.y));
+                c1.vel.y *= -0.5;
+            }
+        });
+    }
 
     draw() {
         this.drawVectorField();

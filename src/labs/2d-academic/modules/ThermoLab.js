@@ -16,13 +16,44 @@ export class ThermoLab {
     }
 
     update(dt) {
-        if (!dt) return;
+        if (!dt || this.engine.isPaused) return;
         const w = this.engine.canvas.width * this.vol;
         const x0 = (this.engine.canvas.width - w) / 2;
-        this.particles.forEach(p => {
-            p.pos = p.pos.add(p.vel.mult((this.temp / 300) * dt * 60));
-            if (p.pos.x < x0 || p.pos.x > x0 + w) p.vel.x *= -1;
-            if (p.pos.y < 50 || p.pos.y > this.engine.canvas.height - 50) p.vel.y *= -1;
+        const speedScale = (this.temp / 300);
+
+        this.particles.forEach((p, i) => {
+            p.pos = p.pos.add(p.vel.mult(speedScale * dt * 60));
+            
+            // Wall collisions
+            if (p.pos.x < x0) { p.pos.x = x0; p.vel.x *= -1; }
+            if (p.pos.x > x0 + w) { p.pos.x = x0 + w; p.vel.x *= -1; }
+            if (p.pos.y < 50) { p.pos.y = 50; p.vel.y *= -1; }
+            if (p.pos.y > this.engine.canvas.height - 50) { p.pos.y = this.engine.canvas.height - 50; p.vel.y *= -1; }
+
+            // Particle-Particle collisions (highly realistic)
+            for (let j = i + 1; j < this.particles.length; j++) {
+                const p2 = this.particles[j];
+                const distVec = p.pos.sub(p2.pos);
+                const dist = distVec.mag();
+                const minDist = 8; // 2 * radius
+                if (dist < minDist) {
+                    // Resolve overlap
+                    const overlap = minDist - dist;
+                    const resolve = distVec.unit().mult(overlap / 2);
+                    p.pos = p.pos.add(resolve);
+                    p2.pos = p2.pos.sub(resolve);
+
+                    // Elastic collision response
+                    const normal = distVec.unit();
+                    const relativeVel = p.vel.sub(p2.vel);
+                    const velAlongNormal = relativeVel.dot(normal);
+                    if (velAlongNormal < 0) {
+                        const impulse = normal.mult(velAlongNormal);
+                        p.vel = p.vel.sub(impulse);
+                        p2.vel = p2.vel.add(impulse);
+                    }
+                }
+            }
         });
     }
 

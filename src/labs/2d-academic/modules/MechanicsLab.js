@@ -10,79 +10,116 @@ export class MechanicsLab {
     }
 
     update(dt) {
-        if (!dt) return;
-        this.time += dt;
+        if (!dt || dt > 0.1) return; // Prevent huge leaps
+
+        // 1. Force Accumulation Phase
+        const springs = this.objects.filter(o => o.type === 'spring');
+        springs.forEach(s => {
+            const posA = s.objA ? s.objA.pos : s.posA;
+            const posB = s.objB ? s.objB.pos : s.posB;
+            if (!posA || !posB) return;
+
+            const diff = posB.sub(posA);
+            const dist = diff.mag();
+            const stretch = dist - s.restLen;
+            const forceMag = stretch * s.k;
+            const force = diff.unit().mult(forceMag);
+
+            // Apply force to objects
+            if (s.objB && s.objB.vel) {
+                const accel = force.mult(-1 / (s.objB.m || 10));
+                s.objB.vel = s.objB.vel.add(accel.mult(dt * 60));
+                // Damping
+                const relVel = s.objB.vel;
+                s.objB.vel = s.objB.vel.sub(relVel.mult(s.damping * 0.1 * dt * 60));
+            }
+            if (s.objA && s.objA.vel) {
+                const accel = force.mult(1 / (s.objA.m || 10));
+                s.objA.vel = s.objA.vel.add(accel.mult(dt * 60));
+                // Damping
+                const relVel = s.objA.vel;
+                s.objA.vel = s.objA.vel.sub(relVel.mult(s.damping * 0.1 * dt * 60));
+            }
+        });
+
+        // 2. Integration & Collision Phase
         this.objects.forEach(o => {
             const isDragged = this.engine.isDragging && this.engine.selection === o;
-            if (isDragged) {
-                o.vel = new Vec2(0, 0); // Reset velocity while dragging
-                return;
+            if (isDragged || o.pinned) {
+                if (o.vel && !o.pinned) o.vel = new Vec2(0, 0); 
+                // If pinned, we might want to keep vel=0 always or just skip acceleration
+                if (o.pinned && o.vel) o.vel = new Vec2(0, 0);
+                
+                // Still allow dragging pinned objects? Usually yes, but they stay where dropped.
+                if (isDragged) {
+                    // Update position is handled by Engine.js handleMouseMove
+                }
+                
+                if (!isDragged || o.pinned) return;
             }
 
             if (o.type === 'ball') {
-                // Physics
+                // Gravity
                 o.vel.y += this.gravity * 20 * dt;
-                o.vel.x *= Math.pow(0.995, dt * 60); // Horizontal damping
+                
+                // Horizontal damping (air resistance)
+                o.vel = o.vel.mult(Math.pow(0.99, dt * 60));
+
+                // Position update
                 o.pos = o.pos.add(o.vel.mult(dt));
 
-                const radius = 20;
-                // Bottom
+                const radius = o.m ? (10 + Math.sqrt(o.m) * 3) : (o.radius || 20);
+
+                // Ground and Walls
                 if (o.pos.y > this.engine.canvas.height - radius) {
                     o.pos.y = this.engine.canvas.height - radius;
-                    o.vel.y *= -0.7;
-                    o.vel.x *= 0.95; // Friction on ground
+                    o.vel.y *= -0.6; // Bounce
+                    o.vel.x *= 0.95; // Friction
                 }
-                // Top
                 if (o.pos.y < radius) {
                     o.pos.y = radius;
-                    o.vel.y *= -0.7;
+                    o.vel.y *= -0.6;
                 }
-                // Right
                 if (o.pos.x > this.engine.canvas.width - radius) {
                     o.pos.x = this.engine.canvas.width - radius;
-                    o.vel.x *= -0.7;
+                    o.vel.x *= -0.6;
                 }
-                // Left
                 if (o.pos.x < radius) {
                     o.pos.x = radius;
-                    o.vel.x *= -0.7;
+                    o.vel.x *= -0.6;
                 }
 
-            } else if (o.type === 'pendulum') {
-                const L = o.length || 200;
-                const pivot = o.pivot || new Vec2(this.engine.canvas.width / 2, 50);
-                o.angleAccel = -(this.gravity * 2 / L) * Math.sin(o.angle);
-                o.angleVel += o.angleAccel * dt * 60;
-                o.angleVel *= Math.pow(0.99, dt * 60);
-                o.angle += o.angleVel * dt * 60;
-                o.pos = new Vec2(
-                    pivot.x + Math.sin(o.angle) * L,
-                    pivot.y + Math.cos(o.angle) * L
-                );
-            } else if (o.type === 'spring') {
-                const pivot = o.pivot || new Vec2(o.pos.x, 50);
-                const restLen = o.restLen || 150;
-                const k = o.k || 5;
-                const m = o.m || 10;
+                // Slope Collisions
+                this.objects.filter(s => s.type === 'slope').forEach(slope => {
+                    const A = slope.pos;
+                    const B = slope.end;
+                    const line = B.sub(A);
+                    const lineLen = line.mag();
+                    if (lineLen === 0) return;
 
-                const currentLen = o.pos.y - pivot.y;
-                const x = currentLen - restLen;
-                const force = -k * x;
-                const accel = force / m + this.gravity;
+                    const t = Math.max(0, Math.min(1, o.pos.sub(A).dot(line) / (lineLen * lineLen)));
+                    const projection = A.add(line.mult(t));
+                    const distVec = o.pos.sub(projection);
+                    const dist = distVec.mag();
+                    const radius = o.m ? (10 + Math.sqrt(o.m) * 3) : (o.radius || 20);
 
-                o.vel.y += accel * dt * 60;
-                o.vel.y *= Math.pow(0.98, dt * 60);
-                o.pos.y += o.vel.y * dt * 60;
+                    if (dist < radius) {
+                        const normal = distVec.unit();
+                        // Push out
+                        const overlap = radius - dist;
+                        o.pos = o.pos.add(normal.mult(overlap));
 
-                const radius = 20;
-                if (o.pos.y > this.engine.canvas.height - radius) {
-                    o.pos.y = this.engine.canvas.height - radius;
-                    o.vel.y *= -0.5;
-                }
-                if (o.pos.y < radius) {
-                    o.pos.y = radius;
-                    o.vel.y *= -0.5;
-                }
+                        // Reflect velocity
+                        if (o.vel.dot(normal) < 0) {
+                            const bounce = 0.4;
+                            o.vel = o.vel.reflect(normal).mult(bounce);
+                        }
+                        
+                        // Apply friction along slope
+                        const friction = slope.friction || 0.1;
+                        o.vel = o.vel.mult(1 - friction * dt * 60);
+                    }
+                });
             }
         });
     }
@@ -90,6 +127,7 @@ export class MechanicsLab {
     draw() {
         this.ctx.shadowBlur = 0;
         const objColor = this.engine.themeCache.objColor;
+        const accent = this.engine.themeCache.accent;
 
         this.objects.forEach(o => {
             const isSelected = o === this.engine.selection;
@@ -102,60 +140,143 @@ export class MechanicsLab {
                 this.ctx.lineWidth = 3;
             }
 
-            // Draw Velocity Vectors for Balls
             if (o.type === 'ball') {
-                this.drawVector(o.pos, o.vel, '#00f0ff', 'v');
+                const radius = o.m ? (10 + Math.sqrt(o.m) * 3) : (o.radius || 20);
+
+                // Vector Arrows
+                this.drawVector(o.pos, o.vel, accent, 'v');
                 
-                // Optional: Draw component axes if moving fast enough
-                if (o.vel.mag() > 10) {
+                // Info Text (Mass & Speed)
+                const speed = o.vel.mag() / 20;
+                if (isSelected || speed > 0.1) {
                     this.ctx.save();
-                    this.ctx.setLineDash([2, 4]);
-                    this.ctx.globalAlpha = 0.5;
-                    this.drawVector(o.pos, new Vec2(o.vel.x, 0), '#ff4757', 'vx');
-                    this.drawVector(o.pos, new Vec2(0, o.vel.y), '#2ed573', 'vy');
+                    this.ctx.fillStyle = objColor;
+                    this.ctx.font = 'bold 12px Outfit, sans-serif';
+                    this.ctx.globalAlpha = 0.8;
+                    const massText = o.m ? `[${o.m}kg] ` : '';
+                    const speedText = speed > 0.1 ? `${speed.toFixed(1)} m/s` : '';
+                    this.ctx.fillText(`${massText}${speedText}`, o.pos.x + radius + 5, o.pos.y - 10);
                     this.ctx.restore();
                 }
-            }
 
-            if (o.type === 'pendulum') {
-                const pivot = o.pivot || new Vec2(this.engine.canvas.width / 2, 50);
-                this.ctx.strokeStyle = isSelected ? '#00f0ff' : objColor;
-                this.ctx.lineWidth = 2;
-                this.ctx.beginPath();
-                this.ctx.moveTo(pivot.x, pivot.y);
-                this.ctx.lineTo(o.pos.x, o.pos.y);
-                this.ctx.stroke();
-            } else if (o.type === 'spring') {
-                const pivot = o.pivot || new Vec2(o.pos.x, 50);
-                this.ctx.strokeStyle = isSelected ? '#00f0ff' : '#3b82f6';
-                this.ctx.lineWidth = 3;
-                this.ctx.beginPath();
-                this.ctx.moveTo(pivot.x, pivot.y);
-                const steps = 15;
-                for (let i = 1; i <= steps; i++) {
-                    const py = pivot.y + (o.pos.y - pivot.y) * (i / steps);
-                    const px = pivot.x + (i % 2 === 0 ? 15 : -15);
-                    this.ctx.lineTo(px, py);
+                // Ball Body
+                this.ctx.fillStyle = isSelected ? accent : (this.engine.theme === 'dark' ? '#ffffff' : '#1e293b');
+                if (o.pinned) {
+                    // Pinned style: thicker border or different color
+                    this.ctx.strokeStyle = '#ff3b3b';
+                    this.ctx.lineWidth = 3;
                 }
-                this.ctx.lineTo(o.pos.x, o.pos.y);
+                
+                this.ctx.beginPath();
+                this.ctx.arc(o.pos.x, o.pos.y, radius, 0, Math.PI * 2);
+                this.ctx.fill();
+                
+                if (isSelected) {
+                    this.ctx.strokeStyle = '#00f0ff';
+                    this.ctx.lineWidth = 2;
+                    this.ctx.stroke();
+                }
+
+                if (o.pinned) {
+                    // Draw a small cross or pin head
+                    this.ctx.fillStyle = '#ff3b3b';
+                    this.ctx.beginPath();
+                    this.ctx.arc(o.pos.x, o.pos.y, 4, 0, Math.PI * 2);
+                    this.ctx.fill();
+                    
+                    this.ctx.strokeStyle = '#ffffff';
+                    this.ctx.lineWidth = 1;
+                    this.ctx.stroke();
+                }
+
+            } else if (o.type === 'pillar') {
+                // Pillar Base
+                this.ctx.fillStyle = objColor;
+                this.ctx.globalAlpha = 0.2;
+                this.ctx.fillRect(o.pos.x - 30, o.pos.y + 10, 60, 10);
+                this.ctx.globalAlpha = 1.0;
+
+                // Anchor Point
+                this.ctx.fillStyle = objColor;
+                this.ctx.beginPath();
+                this.ctx.arc(o.pos.x, o.pos.y, 8, 0, Math.PI * 2);
+                this.ctx.fill();
+                this.ctx.strokeStyle = accent;
+                this.ctx.lineWidth = 2;
                 this.ctx.stroke();
+
+                // Stick
+                this.ctx.fillRect(o.pos.x - 2, o.pos.y, 4, 20);
+
+            } else if (o.type === 'slope') {
+                this.ctx.save();
+                this.ctx.strokeStyle = objColor;
+                this.ctx.lineWidth = 6;
+                this.ctx.lineCap = 'round';
+                this.ctx.globalAlpha = 0.8;
+                
+                // Draw Surface
+                this.ctx.beginPath();
+                this.ctx.moveTo(o.pos.x, o.pos.y);
+                this.ctx.lineTo(o.end.x, o.end.y);
+                this.ctx.stroke();
+
+                // Draw Support (Triangle)
+                this.ctx.lineWidth = 1;
+                this.ctx.globalAlpha = 0.1;
+                this.ctx.fillStyle = objColor;
+                this.ctx.beginPath();
+                this.ctx.moveTo(o.pos.x, o.pos.y);
+                this.ctx.lineTo(o.end.x, o.end.y);
+                this.ctx.lineTo(o.end.x, Math.max(o.pos.y, o.end.y));
+                this.ctx.lineTo(o.pos.x, Math.max(o.pos.y, o.end.y));
+                this.ctx.closePath();
+                this.ctx.fill();
+                this.ctx.restore();
+
+            } else if (o.type === 'spring') {
+                const posA = o.objA ? o.objA.pos : o.posA;
+                const posB = o.objB ? o.objB.pos : o.posB;
+                if (!posA || !posB) return;
+
+                this.ctx.strokeStyle = isSelected ? accent : '#6366f1';
+                this.ctx.lineWidth = 3;
+                this.ctx.lineJoin = 'round';
+                
+                this.ctx.beginPath();
+                this.ctx.moveTo(posA.x, posA.y);
+                
+                const dist = posA.dist(posB);
+                const steps = Math.floor(dist / 10) + 5;
+                const unit = posB.sub(posA).unit();
+                const normal = new Vec2(-unit.y, unit.x);
+                
+                for (let i = 1; i < steps; i++) {
+                    const p = posA.add(posB.sub(posA).mult(i / steps));
+                    const offset = (i % 2 === 0 ? 10 : -10);
+                    const point = p.add(normal.mult(offset));
+                    this.ctx.lineTo(point.x, point.y);
+                }
+                this.ctx.lineTo(posB.x, posB.y);
+                this.ctx.stroke();
+
+                // Small connector circles
+                this.ctx.fillStyle = objColor;
+                this.ctx.beginPath();
+                this.ctx.arc(posA.x, posA.y, 4, 0, Math.PI * 2);
+                this.ctx.arc(posB.x, posB.y, 4, 0, Math.PI * 2);
+                this.ctx.fill();
             }
 
-            this.ctx.fillStyle = isSelected ? this.engine.themeCache.accent : '#ffffff';
-            this.ctx.beginPath();
-            this.ctx.arc(o.pos.x, o.pos.y, 20, 0, Math.PI * 2);
-            this.ctx.fill();
-            
             if (isSelected) {
-                this.ctx.stroke();
                 this.ctx.restore();
             }
         });
 
         // Draw Ground Line
         this.ctx.strokeStyle = objColor;
-        this.ctx.lineWidth = 2;
-        this.ctx.globalAlpha = 0.3;
+        this.ctx.lineWidth = 3;
+        this.ctx.globalAlpha = 0.2;
         this.ctx.beginPath();
         this.ctx.moveTo(0, this.engine.canvas.height - 20);
         this.ctx.lineTo(this.engine.canvas.width, this.engine.canvas.height - 20);
@@ -197,7 +318,30 @@ export class MechanicsLab {
     }
 
     getAtPos(pos) {
-        return this.objects.find(o => o.pos.dist(pos) < 25);
+        return this.objects.find(o => {
+            if (o.pos && !o.end) {
+                return o.pos.dist(pos) < 25;
+            }
+            if (o.pos && o.end) {
+                // Distance to slope line segment
+                const A = o.pos;
+                const B = o.end;
+                const line = B.sub(A);
+                const lineLen = line.mag();
+                if (lineLen === 0) return A.dist(pos) < 25;
+                const t = Math.max(0, Math.min(1, pos.sub(A).dot(line) / (lineLen * lineLen)));
+                const projection = A.add(line.mult(t));
+                return pos.dist(projection) < 20;
+            }
+            if (o.type === 'spring') {
+                const posA = o.objA ? o.objA.pos : o.posA;
+                const posB = o.objB ? o.objB.pos : o.posB;
+                if (!posA || !posB) return false;
+                const mid = posA.add(posB).mult(0.5);
+                return pos.dist(mid) < 25;
+            }
+            return false;
+        });
     }
 
     getHTML() {
@@ -205,6 +349,8 @@ export class MechanicsLab {
             <div class="sidebar-group-label" data-i18n="tools">ИНСТРУМЕНТЫ</div>
             <button class="tool-btn" id="m-ball" data-i18n="create_ball">⚽ Создать шар</button>
             <button class="tool-btn" id="m-spring" data-i18n="create_spring">➰ Создать пружину</button>
+            <button class="tool-btn" id="m-pillar" data-i18n="create_pillar">⚓ Создать опору</button>
+            <button class="tool-btn" id="m-slope" data-i18n="create_slope">📐 Создать наклон</button>
         `;
     }
 
@@ -212,11 +358,40 @@ export class MechanicsLab {
         const spawnX = this.engine.canvas.width / 2;
         const spawnY = 100;
         if (id === 'm-ball') {
-            this.objects.push({ pos: new Vec2(spawnX, spawnY), vel: new Vec2((Math.random() - 0.5) * 50, 0), type: 'ball' });
+            this.objects.push({ 
+                pos: new Vec2(spawnX, spawnY), 
+                vel: new Vec2((Math.random() - 0.5) * 50, 0), 
+                type: 'ball',
+                m: 10,
+                radius: 20,
+                pinned: false
+            });
         } else if (id === 'm-spring') {
+            // New spring logic: connect to nearest ball or pillar, or create one
+            const targets = this.objects.filter(o => o.type === 'ball' || o.type === 'pillar');
+            const target = targets.length ? targets[targets.length - 1] : null;
+            
             this.objects.push({
-                pos: new Vec2(spawnX, 250), pivot: new Vec2(spawnX, 50),
-                vel: new Vec2(0, 0), type: 'spring', k: 5, m: 10, restLen: 150
+                type: 'spring',
+                objA: null, // Fixed point
+                posA: new Vec2(spawnX, 50),
+                objB: target,
+                posB: target ? null : new Vec2(spawnX, 250),
+                k: 5,
+                restLen: 150,
+                damping: 0.5
+            });
+        } else if (id === 'm-pillar') {
+            this.objects.push({
+                pos: new Vec2(spawnX, spawnY),
+                type: 'pillar'
+            });
+        } else if (id === 'm-slope') {
+            this.objects.push({
+                pos: new Vec2(200, 400),
+                end: new Vec2(600, 550),
+                type: 'slope',
+                friction: 0.1
             });
         }
     }

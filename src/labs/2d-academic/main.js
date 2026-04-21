@@ -3,6 +3,7 @@ import { TutorialManager } from './modules/TutorialManager.js';
 import { PremiumControls } from '../../shared/PremiumControls.js';
 import { i18n } from '../../shared/I18nManager.js';
 import { MasterVortexLoader } from '../../shared/SpecialEffects.js';
+import { MobileManager } from './modules/MobileManager.js';
 
 window.onload = () => {
     let loader;
@@ -40,6 +41,7 @@ window.onload = () => {
         window.engine = new Engine();
         window.tutorial = new TutorialManager();
         window.controls = new PremiumControls();
+        window.mobile = new MobileManager();
     } catch (err) {
         console.error("Engine Initialization Error:", err);
         hidePreloader(); // Ensure loader is gone even if engine crashes

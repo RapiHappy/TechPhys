@@ -278,6 +278,32 @@
             background: var(--accent);
             color: var(--bg);
         }
+
+        /* MOBILE RESPONSIVENESS */
+        @media (max-width: 1024px) {
+            .hub-header { padding: 0 30px; }
+            .hub-grid { padding: 1.5rem; gap: 1.5rem; }
+        }
+
+        @media (max-width: 768px) {
+            .logo { font-size: 2.8rem; }
+            .tagline { font-size: 1rem; margin-bottom: 2rem; padding: 0 20px; }
+            .hub-header { height: 60px; padding: 0 20px; }
+            .header-logo { font-size: 1.2rem; }
+            #lang-toggle, #theme-toggle { height: 40px; min-width: 40px; border-radius: 10px; }
+            .hub-card { padding: 1.5rem; }
+            .modal-glass { padding: 2rem; border-radius: 20px; width: 90%; }
+            .modal-glass h2 { font-size: 1.8rem; }
+        }
+
+        @media (max-width: 480px) {
+            .logo { font-size: 2.2rem; letter-spacing: -1px; }
+            .tagline { font-size: 0.9rem; opacity: 0.8; }
+            .hub-grid { grid-template-columns: 1fr; }
+            .hub-card { gap: 0.8rem; }
+            .icon { font-size: 2rem; }
+            h3 { font-size: 1.3rem; }
+        }
     </style>
     <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;800&display=swap" rel="stylesheet">
 </head>

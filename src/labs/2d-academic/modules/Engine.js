@@ -59,7 +59,8 @@ export const translations = {
         title_theory: "Посмотреть формулы и теорию",
         title_help: "Открыть чат с ИИ-помощником",
         title_lang: "Переключить язык (RU/EN)",
-        title_theme: "Переключить тему (День/Ночь)"
+        title_theme: "Переключить тему (День/Ночь)",
+        pinned: "Закрепить предмет"
     },
     en: {
         mechanics: "Mechanics",
@@ -112,7 +113,8 @@ export const translations = {
         title_theory: "View formulas and theory",
         title_help: "Open AI assistant chat",
         title_lang: "Switch language (RU/EN)",
-        title_theme: "Switch theme (Day/Night)"
+        title_theme: "Switch theme (Day/Night)",
+        pinned: "Pin Object"
     }
 };
 
@@ -368,6 +370,15 @@ export class Engine {
                 const b = el.parentElement.querySelector('b');
                 if (b) b.innerText = val;
             }
+            if (el.id === 'obj-pinned' && this.selection) {
+                this.selection.pinned = el.checked;
+            }
+            if (el.id === 'obj-friction' && this.selection) {
+                const val = parseFloat(el.value);
+                this.selection.friction = val;
+                const b = el.parentElement.querySelector('b');
+                if (b) b.innerText = val;
+            }
             if (el.id === 'scenario-select') {
                 this.loadScenario(el.value);
             }
@@ -532,6 +543,34 @@ export class Engine {
                 <b>${deg}°</b>
             </div>`;
         }
+        if (this.selection.k !== undefined) {
+            html += `<div class="inspector-item">
+                <label data-i18n="stiffness">${t.stiffness}</label>
+                <input type="range" id="obj-stiffness" min="1" max="50" value="${this.selection.k}">
+                <b>${this.selection.k}</b>
+            </div>`;
+        }
+        if (this.selection.m !== undefined) {
+            html += `<div class="inspector-item">
+                <label data-i18n="mass">${t.mass}</label>
+                <input type="range" id="obj-mass" min="1" max="100" value="${this.selection.m}">
+                <b>${this.selection.m}</b>
+            </div>`;
+        }
+        if (this.selection.pinned !== undefined || this.selection.type === 'ball') {
+            const isPinned = this.selection.pinned || false;
+            html += `<div class="inspector-item checkbox">
+                <label data-i18n="pinned">${t.pinned}</label>
+                <input type="checkbox" id="obj-pinned" ${isPinned ? 'checked' : ''}>
+            </div>`;
+        }
+        if (this.selection.friction !== undefined) {
+            html += `<div class="inspector-item">
+                <label>Friction</label>
+                <input type="range" id="obj-friction" min="0" max="1" step="0.01" value="${this.selection.friction}">
+                <b>${this.selection.friction}</b>
+            </div>`;
+        }
 
         panel.innerHTML = html || `<div class="empty-state" data-i18n="no_data">${t.no_data}</div>`;
     }
@@ -679,15 +718,17 @@ export class Engine {
 
         if (type === 'pendulum') {
             const center = this.canvas.width / 2;
-            this.labs.mechanics.objects.push({ 
-                pos: new Vec2(center + 100, 250), 
-                pivot: new Vec2(center, 50), 
-                angle: Math.PI / 4,
-                angleVel: 0,
-                angleAccel: 0,
-                length: 220,
-                type: 'pendulum'
-            });
+            const p = { pos: new Vec2(center, 50), type: 'pillar' };
+            const b = { pos: new Vec2(center + 150, 50), vel: new Vec2(0, 0), type: 'ball', m: 10, radius: 20 };
+            const s = { 
+                type: 'spring', 
+                objA: p, 
+                objB: b, 
+                restLen: 150, 
+                k: 10, 
+                damping: 0.1 
+            };
+            this.labs.mechanics.objects.push(p, b, s);
         }
 
         this.updateUI();
