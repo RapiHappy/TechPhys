@@ -4,9 +4,9 @@ export class ChatController {
         this.isOpen = false;
         this.messages = [];
         try {
-            this.openaiKey = import.meta?.env?.VITE_OPENAI_API_KEY || '';
+            this.apiKey = import.meta?.env?.VITE_GEMINI_API_KEY || '';
         } catch(e) {
-            this.openaiKey = '';
+            this.apiKey = '';
         }
         this.setupUI();
     }
@@ -58,32 +58,35 @@ export class ChatController {
         const typingId = this.addTypingIndicator();
 
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const systemPrompt = `You are TechPhys AI, a brilliant and helpful physics assistant. Answer questions concisely and scientifically. Use markdown for formulas. 
+Current Laboratory: ${this.engine.activeLab}.
+Current Missions:
+${this.engine.missions ? this.engine.missions.getCurrentMissionsText() : 'None'}
+
+If the user asks to perform an action or needs help with tasks, include a JSON command at the end of your message in the format: [COMMAND: ACTION_NAME, params]. 
+Actions include: 
+- SPAWN_BALL: Create a ball in mechanics
+- CLEAR: Clear all objects in the current lab
+- SET_GRAVITY, value: Change gravity
+- SHOW_MISSIONS: Generate new AI missions/tasks for the user or refresh current ones.`;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.openaiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o",
-                    messages: [
-                        { 
-                            role: "system", 
-                            content: `You are TechPhys AI, a brilliant and helpful physics assistant. Answer questions concisely and scientifically. Use markdown for formulas. 
-                            Current Laboratory: ${this.engine.activeLab}.
-                            Current Missions:
-                            ${this.engine.missions ? this.engine.missions.getCurrentMissionsText() : 'None'}
-                            
-                            If the user asks to perform an action or needs help with tasks, include a JSON command at the end of your message in the format: [COMMAND: ACTION_NAME, params]. 
-                            Actions include: 
-                            - SPAWN_BALL: Create a ball in mechanics
-                            - CLEAR: Clear all objects in the current lab
-                            - SET_GRAVITY, value: Change gravity
-                            - SHOW_MISSIONS: Generate new AI missions/tasks for the user or refresh current ones.`
-                        },
-                        { role: "user", content: text }
-                    ],
-                    temperature: 0.7
+                    contents: [{
+                        parts: [{
+                            text: `${systemPrompt}\n\nUser Question: ${text}`
+                        }]
+                    }],
+                    generationConfig: {
+                        temperature: 0.7,
+                        topP: 0.95,
+                        topK: 40,
+                        maxOutputTokens: 1024,
+                    }
                 })
             });
 
@@ -95,7 +98,7 @@ export class ChatController {
                 return;
             }
 
-            const aiText = data.choices[0].message.content;
+            const aiText = data.candidates[0].content.parts[0].text;
             this.processAiResponse(aiText);
 
         } catch (err) {
@@ -164,29 +167,29 @@ export class ChatController {
 
     async requestMissions(category, difficulty) {
         try {
-            const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            const systemPrompt = `You are a physics educational system. Generate 3 distinct interactive sandbox missions for the category: ${category}. Difficulty: ${difficulty}. 
+Return valid JSON ONLY in this format: 
+{ "missions": [ { "id": "u1", "title": {"ru": "...", "en": "..."}, "desc": {"ru": "...", "en": "..."}, "type": "action_check" } ] }
+Types: action_check (requires user to do something). Titles and desk must be fun and academic.`;
+
+            const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`, {
                 method: 'POST',
                 headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${this.openaiKey}`
+                    'Content-Type': 'application/json'
                 },
                 body: JSON.stringify({
-                    model: "gpt-4o",
-                    messages: [
-                        { 
-                            role: "system", 
-                            content: `You are a physics educational system. Generate 3 distinct interactive sandbox missions for the category: ${category}. Difficulty: ${difficulty}. 
-                            Return valid JSON ONLY in this format: 
-                            { "missions": [ { "id": "u1", "title": {"ru": "...", "en": "..."}, "desc": {"ru": "...", "en": "..."}, "type": "action_check" } ] }
-                            Types: action_check (requires user to do something). Titles and desk must be fun and academic.`
-                        }
-                    ],
-                    response_format: { type: "json_object" },
-                    temperature: 0.8
+                    contents: [{
+                        parts: [{
+                            text: systemPrompt
+                        }]
+                    }],
+                    generationConfig: {
+                        responseMimeType: "application/json",
+                    }
                 })
             });
             const data = await response.json();
-            const missionsStr = data.choices[0].message.content;
+            const missionsStr = data.candidates[0].content.parts[0].text;
             return JSON.parse(missionsStr).missions;
         } catch (err) {
             console.error("AI Mission Fetch Error:", err);

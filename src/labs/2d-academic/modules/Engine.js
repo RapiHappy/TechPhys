@@ -224,7 +224,7 @@ export class Engine {
                     window.location.href = 'https://rapihappy.github.io/--------------/';
                     return;
                 }
-                if (el.id === 'lang-toggle') {
+                if (el.closest('#lang-toggle')) {
                     const next = i18n.lang === 'ru' ? 'en' : 'ru';
                     i18n.setLanguage(next);
                     return;

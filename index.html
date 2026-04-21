@@ -243,30 +243,39 @@
         </div>
     <script>
         // Non-module fail-safe preloader script
-        (function() {
-            const startSequence = () => {
+            // Minimum display time of 4.5 seconds to show off the premium animation
+            const MIN_TIME = 4500;
+            const startTime = Date.now();
+
+            const hideSequence = () => {
                 const preloader = document.getElementById('preloader');
                 if (!preloader || preloader.style.display === 'none') return;
                 
-                preloader.style.opacity = '0';
+                const elapsed = Date.now() - startTime;
+                const remaining = Math.max(0, MIN_TIME - elapsed);
+
                 setTimeout(() => {
-                    preloader.style.display = 'none';
-                }, 1000);
+                    preloader.style.opacity = '0';
+                    setTimeout(() => {
+                        preloader.style.display = 'none';
+                        if (window.hubLoader) window.hubLoader.stop();
+                    }, 1000);
+                }, remaining);
             };
 
-            // Force hide after 4 seconds
-            setTimeout(startSequence, 4000);
-            window.addEventListener('load', startSequence);
+            window.addEventListener('load', hideSequence);
+            // Backup fail-safe
+            setTimeout(hideSequence, 8000);
         })();
     </script>
 
     <script type="module">
         import { PremiumControls } from './src/shared/PremiumControls.js';
         import { i18n } from './src/shared/I18nManager.js';
-        import { QuantumPulseLoader } from './src/shared/SpecialEffects.js';
+        import { MasterVortexLoader } from './src/shared/SpecialEffects.js';
 
-        // Initialize Premium Features
-        const loader = new QuantumPulseLoader('hubCanvas', 'TECHPHYS HUB');
+        // Initialize Unique Hub Vortex Animation
+        window.hubLoader = new MasterVortexLoader('hubCanvas', 'TECHPHYS HUB');
         new PremiumControls();
         setTimeout(() => i18n.init(), 100);
 

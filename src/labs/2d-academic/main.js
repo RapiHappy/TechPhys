@@ -21,7 +21,11 @@ window.onload = () => {
             preloader.classList.add('fade-out');
             setTimeout(() => {
                 preloader.style.display = 'none';
-                if (loader) loader.stop();
+                preloader.style.pointerEvents = 'none';
+                if (loader) {
+                    loader.stop();
+                    loader.ctx.clearRect(0,0,loader.canvas.width, loader.canvas.height);
+                }
             }, 1000);
         }
     };
