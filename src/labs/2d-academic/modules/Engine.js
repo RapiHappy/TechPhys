@@ -421,9 +421,17 @@ export class Engine {
         const lang = i18n.lang;
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[lang][key]) {
-                if (el.tagName === 'OPTION') el.text = translations[lang][key];
-                else el.textContent = translations[lang][key];
+            const translation = translations[lang][key];
+            if (translation) {
+                if (el.tagName === 'OPTION') {
+                    el.text = translation;
+                } else {
+                    if (el.hasAttribute('data-i18n-html')) {
+                        el.innerHTML = translation;
+                    } else {
+                        el.textContent = translation;
+                    }
+                }
             }
         });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {

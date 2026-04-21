@@ -208,35 +208,46 @@
         <div id="tutorial-modal" class="modal-overlay hidden">
             <div class="modal glass tutorial-card">
                 <div class="modal-header">
-                    <h2 data-i18n="tutorial_title">🚀 TechPhys: Быстрый старт</h2>
-                    <button class="modal-close" id="close-tutorial">&times;</button>
+                    <h2 data-i18n="tutorial_title">🚀 ТехФизика: Быстрый старт</h2>
+                    <button class="modal-close" id="close-tutorial" title="Закрыть">&times;</button>
                 </div>
                 <div class="modal-content">
-                    <div class="tutorial-steps">
-                        <div class="step">
-                            <span class="step-num">1</span>
-                            <p data-i18n="tutorial_step_1"><b>Инструменты:</b> Слева выбирайте объекты и сценарии. Их можно перетаскивать прямо на холсте.</p>
+                    <div class="tutorial-steps-container">
+                        <div class="step active" data-step="0">
+                            <div class="step-visual">🛠️</div>
+                            <p data-i18n="tutorial_step_1" data-i18n-html="true"><b>Инструменты:</b> Слева выбирайте объекты и сценарии. Их можно перетаскивать прямо на холсте.</p>
                         </div>
-                        <div class="step">
-                            <span class="step-num">2</span>
-                            <p data-i18n="tutorial_step_2"><b>Управление:</b> Кнопка паузы внизу слева останавливает время. Рядом — удаление и очистка.</p>
+                        <div class="step" data-step="1">
+                            <div class="step-visual">⏯️</div>
+                            <p data-i18n="tutorial_step_2" data-i18n-html="true"><b>Управление:</b> Кнопка паузы внизу слева останавливает время. Рядом — удаление и очистка.</p>
                         </div>
-                        <div class="step">
-                            <span class="step-num">3</span>
-                            <p data-i18n="tutorial_step_3"><b>Теория:</b> Нажмите кнопку «Теория» вверху для доступа к формулам и справке по текущей теме.</p>
+                        <div class="step" data-step="2">
+                            <div class="step-visual">📖</div>
+                            <p data-i18n="tutorial_step_3" data-i18n-html="true"><b>Теория:</b> Нажмите кнопку «Теория» вверху для доступа к формулам и справке по текущему теме.</p>
                         </div>
-                        <div class="step">
-                            <span class="step-num">4</span>
-                            <p data-i18n="tutorial_step_4"><b>Графики:</b> Справа в реальном времени строятся зависимости. Данные можно скачать в CSV.</p>
+                        <div class="step" data-step="3">
+                            <div class="step-visual">📉</div>
+                            <p data-i18n="tutorial_step_4" data-i18n-html="true"><b>Графики:</b> Справа в реальном времени строятся зависимости. Данные можно скачать в CSV.</p>
                         </div>
-                        <div class="step">
-                            <span class="step-num">5</span>
-                            <p data-i18n="tutorial_step_5"><b>Темы и Язык:</b> Верхние кнопки переключают RU/EN и День/Ночь для вашего комфорта.</p>
+                        <div class="step" data-step="4">
+                            <div class="step-visual">🌓</div>
+                            <p data-i18n="tutorial_step_5" data-i18n-html="true"><b>Темы и Язык:</b> Верхние кнопки переключают RU/EN и День/Ночь для вашего комфорта.</p>
                         </div>
                     </div>
                 </div>
-                <div class="modal-footer">
-                    <button class="next-btn" id="tutorial-ok" data-i18n="tutorial_ok">Понятно, в бой!</button>
+                <div class="modal-footer tutorial-footer">
+                    <div class="step-indicators">
+                        <span class="dot active"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                        <span class="dot"></span>
+                    </div>
+                    <div class="tutorial-nav">
+                        <button class="nav-btn prev-btn hidden" id="tutorial-prev">Назад</button>
+                        <button class="nav-btn next-btn" id="tutorial-next">Далее</button>
+                        <button class="nav-btn finish-btn hidden" id="tutorial-ok">В бой!</button>
+                    </div>
                 </div>
             </div>
         </div>
