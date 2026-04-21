@@ -351,15 +351,18 @@ export class QuantumPulseLoader {
         this.ctx.shadowBlur = 0;
         
         this.ctx.globalCompositeOperation = 'source-over';
-        requestAnimationFrame(() => this.animate());
+        this.rafId = requestAnimationFrame(() => this.animate());
     }
 
     stop() {
         this.active = false;
+        if (this.rafId) cancelAnimationFrame(this.rafId);
         if (this.canvas) {
+            this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
             const parent = this.canvas.parentElement;
             if (parent) {
                 parent.style.opacity = '0';
+                parent.style.pointerEvents = 'none';
                 setTimeout(() => parent.style.display = 'none', 1000);
             }
         }

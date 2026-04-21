@@ -12,10 +12,13 @@ export class PremiumControls {
     init() {
         this.langBtn = document.getElementById('lang-toggle');
         this.themeBtn = document.getElementById('theme-toggle');
+        this.hubBtn = document.getElementById('hub-btn');
+        this.theoryBtn = document.getElementById('theory-btn');
         
         if (this.langBtn) {
             this.langBtn.innerText = i18n.lang.toUpperCase();
-            this.langBtn.onclick = () => {
+            this.langBtn.onclick = (e) => {
+                e.stopPropagation();
                 const next = i18n.lang === 'ru' ? 'en' : 'ru';
                 i18n.setLanguage(next);
             };
@@ -23,10 +26,25 @@ export class PremiumControls {
 
         if (this.themeBtn) {
             this.themeBtn.innerText = i18n.theme === 'dark' ? '🌙' : '☀️';
-            this.themeBtn.onclick = () => {
+            this.themeBtn.onclick = (e) => {
+                e.stopPropagation();
                 const next = i18n.theme === 'dark' ? 'light' : 'dark';
                 i18n.setTheme(next);
-                this.updateThemeButton(next);
+            };
+        }
+
+        if (this.hubBtn) {
+            this.hubBtn.onclick = (e) => {
+                e.stopPropagation();
+                window.location.href = '../../index.html';
+            };
+        }
+
+        if (this.theoryBtn) {
+            this.theoryBtn.onclick = (e) => {
+                e.stopPropagation();
+                // Theory button should trigger an event or call engine if available
+                window.dispatchEvent(new CustomEvent('techphys_theory_click'));
             };
         }
 

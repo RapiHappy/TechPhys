@@ -767,6 +767,7 @@ select option {
     opacity: 0 !important;
     visibility: hidden !important;
     pointer-events: none !important;
+    display: none !important; /* Force removal to stop all drawing */
 }
 
 .mission-item.done {

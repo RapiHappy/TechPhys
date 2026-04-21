@@ -220,21 +220,7 @@ export class Engine {
                     this.deleteSelected();
                     return;
                 }
-                if (el.closest('#hub-btn')) {
-                    window.location.href = 'https://rapihappy.github.io/--------------/';
-                    return;
-                }
-                if (el.closest('#lang-toggle')) {
-                    const next = i18n.lang === 'ru' ? 'en' : 'ru';
-                    i18n.setLanguage(next);
-                    return;
-                }
-
-                if (el.id === 'theme-toggle' || el.closest('#theme-toggle')) {
-                    const next = i18n.theme === 'dark' ? 'light' : 'dark';
-                    i18n.setTheme(next);
-                    return;
-                }
+                // Header Controls (Hub, Lang, Theme) are handled by PremiumControls.js to avoid delegation issues.
 
                 if (el.closest('.tab-item')) {
                     const btn = el.closest('.tab-item');
@@ -266,17 +252,7 @@ export class Engine {
                     return;
                 }
 
-                if (el.closest('#theory-btn')) {
-                    const content = ACADEMIC_THEORY[this.activeLab] || "Theory for this section is coming soon.";
-                    const modal = document.getElementById('theory-modal');
-                    const contentEl = document.getElementById('theory-content');
-                    if (contentEl) contentEl.innerHTML = content;
-                    if (modal) {
-                        modal.style.display = 'flex';
-                        modal.classList.remove('hidden');
-                    }
-                    return;
-                }
+                // Theory modal handled via CustomEvent 'techphys_theory_click' to avoid conflicts.
 
                 if (el.closest('#export-csv-btn')) {
                     this.exportCSV();
@@ -333,6 +309,17 @@ export class Engine {
         if (refreshBtn) {
             refreshBtn.onclick = () => this.missions.generateAIMissions(true);
         }
+
+        window.addEventListener('techphys_theory_click', () => {
+            const content = ACADEMIC_THEORY[this.activeLab] || "Theory content unavailable.";
+            const modal = document.getElementById('theory-modal');
+            const contentEl = document.getElementById('theory-content');
+            if (contentEl) contentEl.innerHTML = content;
+            if (modal) {
+                modal.style.display = 'flex';
+                modal.classList.remove('hidden');
+            }
+        });
 
         if (this.canvas) {
             this.canvas.onmousedown = (e) => this.handleMouseDown(e);
