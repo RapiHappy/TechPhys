@@ -67,7 +67,20 @@ export class ChatController {
                 body: JSON.stringify({
                     model: "gpt-4o",
                     messages: [
-                        { role: "system", content: "You are TechPhys AI, a brilliant and helpful physics assistant. Answer questions concisely and scientifically. Use markdown for formulas. If the user asks to perform an action in the lab, always include a JSON command at the end of your message in the format: [COMMAND: ACTION_NAME, params]. Actions include: SPAWN_BALL, SPAWN_BOX, CLEAR, SET_GRAVITY." },
+                        { 
+                            role: "system", 
+                            content: `You are TechPhys AI, a brilliant and helpful physics assistant. Answer questions concisely and scientifically. Use markdown for formulas. 
+                            Current Laboratory: ${this.engine.activeLab}.
+                            Current Missions:
+                            ${this.engine.missions ? this.engine.missions.getCurrentMissionsText() : 'None'}
+                            
+                            If the user asks to perform an action or needs help with tasks, include a JSON command at the end of your message in the format: [COMMAND: ACTION_NAME, params]. 
+                            Actions include: 
+                            - SPAWN_BALL: Create a ball in mechanics
+                            - CLEAR: Clear all objects in the current lab
+                            - SET_GRAVITY, value: Change gravity
+                            - SHOW_MISSIONS: Generate new AI missions/tasks for the user or refresh current ones.`
+                        },
                         { role: "user", content: text }
                     ],
                     temperature: 0.7
@@ -119,6 +132,9 @@ export class ChatController {
         if (action === 'SET_GRAVITY') {
             const val = parseFloat(params);
             if (!isNaN(val)) this.engine.labs.mechanics.gravity = val;
+        }
+        if (action === 'SHOW_MISSIONS') {
+            if (this.engine.missions) this.engine.missions.generateAIMissions(true);
         }
     }
 

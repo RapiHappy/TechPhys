@@ -150,7 +150,7 @@ export class MissionManager {
         if (!container) return;
 
         const lang = document.documentElement.getAttribute('lang') || 'ru';
-        const all = [...this.staticMissions.filter(m => m.category === this.engine.activeLab), ...this.aiMissions];
+        const all = this.getAllMissions();
         
         if (all.length === 0) {
             container.innerHTML = '<div class="empty-state">Нет активных заданий</div>';
@@ -166,5 +166,17 @@ export class MissionManager {
                 </div>
             </div>
         `).join('');
+    }
+
+    getAllMissions() {
+        return [...this.staticMissions.filter(m => m.category === this.engine.activeLab), ...this.aiMissions];
+    }
+
+    getCurrentMissionsText() {
+        const lang = document.documentElement.getAttribute('lang') || 'ru';
+        const all = this.getAllMissions();
+        if (all.length === 0) return "No active tasks.";
+        
+        return all.map((m, i) => `${i+1}. ${m.title[lang]}: ${m.desc[lang]} [Status: ${m.done ? 'Completed' : 'Active'}]`).join('\n');
     }
 }
