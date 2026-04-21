@@ -38,7 +38,7 @@ export const translations = {
         mass: "Масса (m)",
         angle: "Угол (α)",
         sim_speed: "Скорость",
-        labs_hub: "Центр Лабораторий",
+        labs_hub: "Главная страница",
         chat_bot_name: "TechPhys Помощник",
         chat_welcome: "Привет! Я твой ИИ-помощник. Задавай любые вопросы по физике или по работе симулятора!",
         chat_placeholder: "Ваш вопрос...",
@@ -46,11 +46,18 @@ export const translations = {
         chip_mkt: "Что такое МКТ?",
         chip_optics: "Зеркала и линзы",
         chip_electro: "Заряды и поля",
-        tutorial_title: "🚀 Быстрый старт",
-        tutorial_step_1: "Выберите лабораторию во вкладках сверху. Каждая имеет свой набор инструментов.",
-        tutorial_step_2: "Добавляйте объекты через левое меню. Вы можете перетаскивать их мышкой!",
-        tutorial_step_3: "Следите за графиками в правой панели и экспортируйте данные в CSV.",
-        tutorial_ok: "Понятно, в бой!"
+        tutorial_title: "🚀 ТехФизика: Быстрый старт",
+        tutorial_step_1: "<b>Инструменты:</b> Слева выбирайте объекты и сценарии. Их можно перетаскивать прямо на холсте.",
+        tutorial_step_2: "<b>Управление:</b> Кнопка паузы внизу слева останавливает время. Рядом — удаление и очистка.",
+        tutorial_step_3: "<b>Теория:</b> Нажмите кнопку «Теория» вверху для доступа к формулам и справке по текущей теме.",
+        tutorial_step_4: "<b>Графики:</b> Справа в реальном времени строятся зависимости. Данные можно скачать в CSV.",
+        tutorial_step_5: "<b>Темы и Язык:</b> Верхние кнопки переключают RU/EN и День/Ночь для вашего комфорта.",
+        tutorial_ok: "Всё понятно, приступим!",
+        title_hub: "Вернуться на главную страницу портала",
+        title_theory: "Посмотреть формулы и теорию",
+        title_help: "Открыть чат с ИИ-помощником",
+        title_lang: "Переключить язык (RU/EN)",
+        title_theme: "Переключить тему (День/Ночь)"
     },
     en: {
         mechanics: "Mechanics",
@@ -82,7 +89,7 @@ export const translations = {
         mass: "Mass (m)",
         angle: "Angle (α)",
         sim_speed: "Speed",
-        labs_hub: "Labs Hub",
+        labs_hub: "Home Page",
         chat_bot_name: "TechPhys Assistant",
         chat_welcome: "Hello! I am your AI assistant. Ask me anything about physics or how this simulator works!",
         chat_placeholder: "Your question...",
@@ -90,11 +97,18 @@ export const translations = {
         chip_mkt: "What is KMT?",
         chip_optics: "Lenses & Mirrors",
         chip_electro: "Charges & Fields",
-        tutorial_title: "🚀 Quick Start",
-        tutorial_step_1: "Select a lab in the top tabs. Each has its own toolset.",
-        tutorial_step_2: "Add objects from the left menu. You can drag them directly on the canvas!",
-        tutorial_step_3: "Monitor real-time charts in the right panel and export data to CSV.",
-        tutorial_ok: "Got it, let's go!"
+        tutorial_title: "🚀 TechPhys: Quick Start",
+        tutorial_step_1: "<b>Tools:</b> Select objects and presets on the left. Drag them directly on the canvas.",
+        tutorial_step_2: "<b>Controls:</b> Use the pause button (bottom-left) to stop time. Delete/Clear are nearby.",
+        tutorial_step_3: "<b>Theory:</b> Click the 'Theory' button above for formulas and references.",
+        tutorial_step_4: "<b>Charts:</b> Real-time data logs on the right. Download records via CSV button.",
+        tutorial_step_5: "<b>Settings:</b> Use top toggles for RU/EN and Dark/Light modes.",
+        tutorial_ok: "Got it, let's start!",
+        title_hub: "Return to the main portal page",
+        title_theory: "View formulas and theory",
+        title_help: "Open AI assistant chat",
+        title_lang: "Switch language (RU/EN)",
+        title_theme: "Switch theme (Day/Night)"
     }
 };
 
@@ -102,21 +116,59 @@ export let currentLang = 'ru';
 
 export const ACADEMIC_THEORY = {
     mechanics: `
-        <h3>🏗️ Механика: Силы и Движение</h3>
-        <p><b>1. Второй закон Ньютона:</b> Ускорение тела (a) зависит от силы (F) и массы (m): <b>F = ma</b>. В нашей симуляции тяжелые шары падают быстрее только если на них действуют дополнительные силы, в свободном падении ускорение одинаково!</p>
-        <p><b>2. Энергия:</b> Сумма кинетической (движение) и потенциальной (высота) энергии сохраняется: <b>E = mv²/2 + mgh</b>.</p>
+        <div class="theory-section">
+            <h3>🏗️ Механика: Фундаментальные законы</h3>
+            <div class="formula-box">F = m · a</div>
+            <p><b>Второй закон Ньютона:</b> Ускорение тела прямо пропорционально равнодействующей всех сил и обратно пропорционально его массе.</p>
+            
+            <div class="formula-box">E_k = (m · v²) / 2</div>
+            <p><b>Кинетическая энергия:</b> Энергия движения. Зависит от массы и квадрата скорости.</p>
+            
+            <div class="formula-box">E_p = m · g · h</div>
+            <p><b>Потенциальная энергия:</b> Энергия в поле тяжести, зависящая от высоты (h).</p>
+            
+            <div class="formula-box">g ≈ 9.81 м/с²</div>
+            <p><b>Ускорение свободного падения:</b> Константа, определяющая силу тяжести на Земле.</p>
+        </div>
     `,
     thermo: `
-        <h3>🔥 Термодинамика: Молекулы и Газ</h3>
-        <p><b>1. Давление и Температура:</b> Давление газа (P) прямо пропорционально температуре (T). Чем быстрее движутся наши частицы, тем сильнее они бьют по стенкам сосуда.</p>
+        <div class="theory-section">
+            <h3>🔥 Термодинамика: МКТ и Теплота</h3>
+            <div class="formula-box">P · V = n · R · T</div>
+            <p><b>Уравнение Менделеева-Клапейрона:</b> Связывает давление, объем и температуру идеального газа.</p>
+            
+            <div class="formula-box">Q = c · m · ΔT</div>
+            <p><b>Количество теплоты:</b> Энергия, необходимая для нагрева тела массой (m) на разность температур (ΔT).</p>
+            
+            <div class="formula-box">v_rms = √(3kT / m)</div>
+            <p><b>Среднеквадратичная скорость:</b> Скорость движения молекул в зависимости от температуры.</p>
+        </div>
     `,
     optics: `
-        <h3>🔦 Оптика: Лучи и Зеркала</h3>
-        <p><b>1. Отражение:</b> Угол падения луча на зеркало всегда равен углу отражения. Это фундаментальный закон геометрической оптики.</p>
+        <div class="theory-section">
+            <h3>🔦 Оптика: Геометрические законы</h3>
+            <div class="formula-box">α = β</div>
+            <p><b>Закон отражения:</b> Угол падения равен углу отражения от зеркальной поверхности.</p>
+            
+            <div class="formula-box">n₁ · sin(α) = n₂ · sin(γ)</div>
+            <p><b>Закон Снеллиуса:</b> Описывает преломление света на границе двух сред.</p>
+            
+            <div class="formula-box">1/F = 1/d + 1/f</div>
+            <p><b>Формула тонкой линзы:</b> Отношение фокусного расстояния (F), расстояния до предмета (d) и до изображения (f).</p>
+        </div>
     `,
     electro: `
-        <h3>⚡ Электростатика: Заряды</h3>
-        <p><b>1. Закон Кулона:</b> Одноименные заряды (+) (+) отталкиваются, а разноименные (+) (-) притягиваются.</p>
+        <div class="theory-section">
+            <h3>⚡ Электростатика: Поля и Заряды</h3>
+            <div class="formula-box">F = k · (|q₁| · |q₂|) / r²</div>
+            <p><b>Закон Кулона:</b> Сила взаимодействия между точечными зарядами в вакууме.</p>
+            
+            <div class="formula-box">E = F / q</div>
+            <p><b>Напряженность поля:</b> Силовая характеристика электрического поля в данной точке.</p>
+            
+            <div class="formula-box">φ = W / q</div>
+            <p><b>Потенциал:</b> Энергетическая характеристика поля, равная отношению потенциальной энергии к заряду.</p>
+        </div>
     `
 };
 
@@ -140,10 +192,11 @@ export class Engine {
         this.timeScale = 1.0;
         this.lastTime = performance.now();
         
+        this.currentLang = i18n.lang;
         this.themeCache = {
-            canvasBg: '#05060a',
-            objColor: '#ffffff',
-            accent: '#00f0ff'
+            canvasBg: i18n.theme === 'dark' ? '#05060a' : '#ffffff',
+            objColor: i18n.theme === 'dark' ? '#ffffff' : '#1e293b',
+            accent: '#3b82f6'
         };
 
         this.init();
@@ -183,6 +236,7 @@ export class Engine {
             this.updateThemeCache();
         });
 
+        this.updateLanguage();
         this.updateUI();
         this.loop();
         
@@ -364,17 +418,24 @@ export class Engine {
     }
 
     updateLanguage() {
+        const lang = i18n.lang;
         document.querySelectorAll('[data-i18n]').forEach(el => {
             const key = el.getAttribute('data-i18n');
-            if (translations[currentLang][key]) {
-                if (el.tagName === 'OPTION') el.text = translations[currentLang][key];
-                else el.textContent = translations[currentLang][key];
+            if (translations[lang][key]) {
+                if (el.tagName === 'OPTION') el.text = translations[lang][key];
+                else el.textContent = translations[lang][key];
             }
         });
         document.querySelectorAll('[data-i18n-placeholder]').forEach(el => {
             const key = el.getAttribute('data-i18n-placeholder');
-            if (translations[currentLang][key]) {
-                el.placeholder = translations[currentLang][key];
+            if (translations[lang][key]) {
+                el.placeholder = translations[lang][key];
+            }
+        });
+        document.querySelectorAll('[data-i18n-title]').forEach(el => {
+            const key = el.getAttribute('data-i18n-title');
+            if (translations[lang][key]) {
+                el.title = translations[lang][key];
             }
         });
     }
@@ -422,7 +483,7 @@ export class Engine {
         }
 
         let html = '';
-        const t = translations[currentLang];
+        const t = translations[i18n.lang];
         html += `<div class="inspector-item" style="opacity: 0.7; font-size: 0.7rem; margin-bottom: 5px;">${this.selection.type?.toUpperCase()}</div>`;
 
         if (this.selection.angle !== undefined) {

@@ -44,17 +44,17 @@
             </nav>
 
             <div class="header-actions">
-                <button id="hub-btn" class="special-glow" title="Перейти в другие лаборатории (3D, AI, Sandbox)">
-                    <span class="icon">🌌</span> <span data-i18n="labs_hub">Центр Лабораторий</span>
+                <button id="hub-btn" class="special-glow" data-i18n-title="title_hub" title="Вернуться на главную страницу портала">
+                    <span class="icon">🌌</span> <span data-i18n="labs_hub">Главная страница</span>
                 </button>
                 <div class="divider"></div>
-                <button id="theory-btn" title="Посмотреть теоретические справки по текущей теме">
+                <button id="theory-btn" data-i18n-title="title_theory" title="Посмотреть формулы и теорию">
                     <span class="icon">📖</span> <span data-i18n="theory">Теория</span>
                 </button>
                 <div class="divider"></div>
-                <button id="chat-reopen-btn" title="Открыть чат с ИИ-помощником">💬 Помощь</button>
-                <button id="lang-toggle" title="Сменить язык интерфейса (RU/EN)">RU</button>
-                <button id="theme-toggle" title="Переключить темную/светлую тему">🌙</button>
+                <button id="chat-reopen-btn" data-i18n-title="title_help" title="Открыть чат с ИИ-помощником">💬 Помощь</button>
+                <button id="lang-toggle" data-i18n-title="title_lang" title="Сменить язык интерфейса (RU/EN)">RU</button>
+                <button id="theme-toggle" data-i18n-title="title_theme" title="Переключить темную/светлую тему">🌙</button>
             </div>
         </header>
 
@@ -213,15 +213,23 @@
                     <div class="tutorial-steps">
                         <div class="step">
                             <span class="step-num">1</span>
-                            <p data-i18n="tutorial_step_1"><b>Выберите лабораторию</b> во вкладках сверху (Механика, Оптика и др.). Каждая имеет свой набор инструментов.</p>
+                            <p data-i18n="tutorial_step_1"><b>Инструменты:</b> Слева выбирайте объекты и сценарии. Их можно перетаскивать прямо на холсте.</p>
                         </div>
                         <div class="step">
                             <span class="step-num">2</span>
-                            <p data-i18n="tutorial_step_2"><b>Добавляйте объекты</b> через левое меню. Вы можете перетаскивать их мышкой прямо на холсте!</p>
+                            <p data-i18n="tutorial_step_2"><b>Управление:</b> Кнопка паузы внизу слева останавливает время. Рядом — удаление и очистка.</p>
                         </div>
                         <div class="step">
                             <span class="step-num">3</span>
-                            <p data-i18n="tutorial_step_3"><b>Следите за графиками</b> в правой панели и экспортируйте данные в CSV для ваших отчетов.</p>
+                            <p data-i18n="tutorial_step_3"><b>Теория:</b> Нажмите кнопку «Теория» вверху для доступа к формулам и справке по текущей теме.</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">4</span>
+                            <p data-i18n="tutorial_step_4"><b>Графики:</b> Справа в реальном времени строятся зависимости. Данные можно скачать в CSV.</p>
+                        </div>
+                        <div class="step">
+                            <span class="step-num">5</span>
+                            <p data-i18n="tutorial_step_5"><b>Темы и Язык:</b> Верхние кнопки переключают RU/EN и День/Ночь для вашего комфорта.</p>
                         </div>
                     </div>
                 </div>

@@ -25,17 +25,18 @@
 }
 
 [data-theme="light"] {
-    --bg-main: #f1f5f9;
-    --bg-surface: rgba(255, 255, 255, 0.85);
-    --glass-bg: rgba(255, 255, 255, 0.6);
-    --glass-border: rgba(15, 23, 42, 0.12);
+    --bg-main: #f8fafc;
+    --bg-surface: rgba(255, 255, 255, 0.95);
+    --glass-bg: rgba(255, 255, 255, 0.8);
+    --glass-border: rgba(15, 23, 42, 0.1);
     --text-primary: #0f172a;
     --text-secondary: #475569;
     --accent: #2563eb;
-    --accent-glow: rgba(37, 99, 235, 0.15);
-    --chat-surface: rgba(255, 255, 255, 0.95);
+    --accent-glow: rgba(37, 99, 235, 0.1);
+    --chat-surface: #ffffff;
     --canvas-bg: #ffffff;
     --obj-color: #1e293b;
+    --formula-bg: #f1f5f9;
 }
 
 * {
@@ -252,9 +253,19 @@ body {
 #hub-btn:hover, #theory-btn:hover, #chat-reopen-btn:hover, #lang-toggle:hover, #theme-toggle:hover {
     background: var(--accent);
     color: white;
-    transform: translateY(-2px);
+    transform: translateY(-2px) scale(1.05);
     box-shadow: 0 4px 15px var(--accent-glow);
     border-color: rgba(255,255,255,0.3);
+}
+
+.pop-animation {
+    animation: button-pop 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes button-pop {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
 }
 
 #hub-btn:hover, #chat-reopen-btn:hover {
@@ -471,6 +482,42 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 .modal-header h2 { font-weight: 800; font-size: 1.5rem; letter-spacing: -0.5px; }
+
+/* THEORY CONTENT STYLES */
+.theory-section {
+    padding: 10px 0;
+    line-height: 1.6;
+}
+
+.theory-section h3 {
+    color: var(--accent);
+    margin-bottom: 20px;
+    font-size: 1.4rem;
+}
+
+.formula-box {
+    background: var(--formula-bg, rgba(255,255,255,0.05));
+    border-radius: 12px;
+    padding: 20px;
+    margin: 15px 0;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 1.2rem;
+    font-weight: 700;
+    text-align: center;
+    color: var(--accent);
+    border: 1px dashed var(--glass-border);
+    box-shadow: inset 0 0 15px rgba(0,0,0,0.1);
+}
+
+.theory-section p {
+    margin-bottom: 15px;
+    font-size: 0.95rem;
+    opacity: 0.9;
+}
+
+.theory-section b {
+    color: var(--text-primary);
+}
 
 /* CHAT WIDGET */
 .chat-wrapper {

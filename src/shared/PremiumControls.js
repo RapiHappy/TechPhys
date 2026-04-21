@@ -18,15 +18,17 @@ export class PremiumControls {
         if (this.langBtn) {
             this.langBtn.innerText = i18n.lang.toUpperCase();
             this.langBtn.onclick = (e) => {
+                this.animateButton(this.langBtn);
                 e.stopPropagation();
                 const next = i18n.lang === 'ru' ? 'en' : 'ru';
-                i18n.setLanguage(next);
+                setTimeout(() => i18n.setLanguage(next), 150);
             };
         }
 
         if (this.themeBtn) {
             this.themeBtn.innerText = i18n.theme === 'dark' ? '🌙' : '☀️';
             this.themeBtn.onclick = (e) => {
+                this.animateButton(this.themeBtn);
                 e.stopPropagation();
                 const next = i18n.theme === 'dark' ? 'light' : 'dark';
                 i18n.setTheme(next);
@@ -35,15 +37,18 @@ export class PremiumControls {
 
         if (this.hubBtn) {
             this.hubBtn.onclick = (e) => {
+                this.animateButton(this.hubBtn);
                 e.stopPropagation();
-                window.location.href = 'https://rapihappy.github.io/--------------/';
+                setTimeout(() => {
+                    window.location.href = 'https://rapihappy.github.io/--------------/';
+                }, 200);
             };
         }
 
         if (this.theoryBtn) {
             this.theoryBtn.onclick = (e) => {
+                this.animateButton(this.theoryBtn);
                 e.stopPropagation();
-                // Theory button should trigger an event or call engine if available
                 window.dispatchEvent(new CustomEvent('techphys_theory_click'));
             };
         }
@@ -54,10 +59,14 @@ export class PremiumControls {
         });
     }
 
+    animateButton(btn) {
+        btn.classList.add('pop-animation');
+        setTimeout(() => btn.classList.remove('pop-animation'), 400);
+    }
+
     updateThemeButton(theme) {
         if (!this.themeBtn) return;
         this.themeBtn.innerText = theme === 'dark' ? '🌙' : '☀️';
-        this.themeBtn.classList.add('pop-animation');
-        setTimeout(() => this.themeBtn.classList.remove('pop-animation'), 400);
+        this.animateButton(this.themeBtn);
     }
 }
