@@ -84,11 +84,10 @@ Actions: SPAWN_BALL, CLEAR, SET_GRAVITY, SHOW_MISSIONS.`;
             // Mistral Prompt Format
             const prompt = `<s>[INST] ${systemPrompt}\n\nUser: ${text} [/INST]`;
 
-            // Hugging Face API URL with CORS Proxy
-            const hfUrl = `https://api-inference.huggingface.co/models/${this.hfModel}`;
-            const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(hfUrl)}`;
+            // Direct Hugging Face API (Phi-3)
+            const hfUrl = `https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct`;
 
-            const response = await fetch(proxiedUrl, {
+            const response = await fetch(hfUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -96,7 +95,7 @@ Actions: SPAWN_BALL, CLEAR, SET_GRAVITY, SHOW_MISSIONS.`;
                 },
                 body: JSON.stringify({
                     inputs: prompt,
-                    parameters: { max_new_tokens: 500, temperature: 0.7, return_full_text: false }
+                    parameters: { max_new_tokens: 500, temperature: 0.7 }
                 })
             });
 
@@ -196,10 +195,9 @@ Ensure the mission description matches the technical checkCondition.`;
             if (this.hfToken) {
                 const prompt = `<s>[INST] ${systemPrompt}\n\nPlease return the 3 missions in the requested JSON format. [/INST]`;
 
-                const hfUrl = `https://api-inference.huggingface.co/models/${this.hfModel}`;
-                const proxiedUrl = `https://corsproxy.io/?${encodeURIComponent(hfUrl)}`;
+                const hfUrl = `https://api-inference.huggingface.co/models/microsoft/Phi-3-mini-4k-instruct`;
 
-                const response = await fetch(proxiedUrl, {
+                const response = await fetch(hfUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
