@@ -90,8 +90,13 @@ Actions include:
                 return;
             }
 
-            const yandexUrl = import.meta.env.PROD ? "https://llm.api.cloud.yandex.net" : "/yandex-api";
-            const response = await fetch(`${yandexUrl}/foundationModels/v1/completion`, {
+            // Use Proxy/Direct for Yandex GPT
+            const yandexBase = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+            const yandexUrl = import.meta.env.PROD 
+                ? `https://corsproxy.io/?${encodeURIComponent(yandexBase)}`
+                : `/yandex-api/foundationModels/v1/completion`;
+
+            const response = await fetch(yandexUrl, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -204,9 +209,13 @@ Ensure the mission description matches the technical checkCondition.`;
             let missionsStr = "";
 
             if (this.yandexKey && this.folderId) {
-                const yandexUrl = import.meta.env.PROD ? "https://llm.api.cloud.yandex.net" : "/yandex-api";
-                console.log(`AI: Fetching missions via ${import.meta.env.PROD ? 'Direct' : 'Proxy'} to Yandex GPT...`);
-                const response = await fetch(`${yandexUrl}/foundationModels/v1/completion`, {
+                const yandexBase = "https://llm.api.cloud.yandex.net/foundationModels/v1/completion";
+                const yandexUrl = import.meta.env.PROD 
+                    ? `https://corsproxy.io/?${encodeURIComponent(yandexBase)}`
+                    : `/yandex-api/foundationModels/v1/completion`;
+
+                console.log(`AI: Fetching missions via ${import.meta.env.PROD ? 'CORS Bridge' : 'Local Proxy'}...`);
+                const response = await fetch(yandexUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
